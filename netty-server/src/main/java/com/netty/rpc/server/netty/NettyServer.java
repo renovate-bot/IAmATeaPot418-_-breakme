@@ -13,12 +13,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 @NoArgsConstructor
-@Data
 public class NettyServer extends Server {
     private static final Logger logger = LoggerFactory.getLogger(NettyServer.class);
 
-    private int CORE_THREAD_POOL_SIZE = 35;
-    private int MAX_THREAD_POOL_SIZE = 70;
+    /**
+     * 业务线程池核心线程数
+     */
+    private int coreThreadPoolSize = 35;
+    /**
+     * 业务线程池子最大线程数
+     */
+    private int maxThreadPoolSize = 70;
 
     private Thread thread;
     private String serverAddress;
@@ -33,8 +38,8 @@ public class NettyServer extends Server {
     public NettyServer(String serverAddress, String registryAddress, int coreThreadSize, int maxThreadSize) {
         this.serverAddress = serverAddress;
         this.serviceRegistry = new ServiceRegistry(registryAddress);
-        this.CORE_THREAD_POOL_SIZE = coreThreadSize;
-        this.MAX_THREAD_POOL_SIZE = maxThreadSize;
+        this.coreThreadPoolSize = coreThreadSize;
+        this.maxThreadPoolSize = maxThreadSize;
     }
 
     /**
@@ -42,8 +47,8 @@ public class NettyServer extends Server {
      */
     public void start() {
         NettyServerBootstrap nettyServerBootstrap = new NettyServerBootstrap(
-                CORE_THREAD_POOL_SIZE,
-                MAX_THREAD_POOL_SIZE,
+                coreThreadPoolSize,
+                maxThreadPoolSize,
                 NettyServer.class.getSimpleName(),
                 serverAddress,
                 serviceKey2BeanMap,
@@ -73,4 +78,17 @@ public class NettyServer extends Server {
         serviceKey2BeanMap.put(serviceKey, serviceBean);
     }
 
+    protected void setCoreThreadPoolSize(int coreThreadPoolSize) {
+        if (coreThreadPoolSize <= 0) {
+            return;
+        }
+        this.coreThreadPoolSize = coreThreadPoolSize;
+    }
+
+    protected void setMaxThreadPoolSize(int maxThreadPoolSize) {
+        if (maxThreadPoolSize <= 0) {
+            return;
+        }
+        this.maxThreadPoolSize = maxThreadPoolSize;
+    }
 }

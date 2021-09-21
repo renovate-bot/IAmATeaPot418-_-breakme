@@ -1,4 +1,4 @@
-package com.application.test.server;
+package com.application.test.common.server;
 
 import com.application.test.service.HelloService;
 import com.application.test.service.HelloServiceImpl;
