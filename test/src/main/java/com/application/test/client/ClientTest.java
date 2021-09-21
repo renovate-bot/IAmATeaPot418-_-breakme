@@ -13,20 +13,24 @@ import java.util.List;
 public class ClientTest {
 
     public static void main(String[] args) throws Exception {
-        ConnectionWithOutRegistry connectionWithOutRegistry = new ConnectionWithOutRegistry();
-        RpcProtocol rpcProtocol = new RpcProtocol();
-        rpcProtocol.setHost("127.0.0.1");
-        rpcProtocol.setPort(18877);
-        rpcProtocol.setServiceInfoList(new ArrayList<>());
-        List<RpcServiceInfo> serviceInfoList = rpcProtocol.getServiceInfoList();
-        serviceInfoList.add(new RpcServiceInfo(HelloService.class.getName(), "1.0"));
+//        ConnectionWithOutRegistry connectionWithOutRegistry = new ConnectionWithOutRegistry();
+//        RpcProtocol rpcProtocol = new RpcProtocol();
+//        rpcProtocol.setHost("127.0.0.1");
+//        rpcProtocol.setPort(18877);
+//        rpcProtocol.setServiceInfoList(new ArrayList<>());
+//        List<RpcServiceInfo> serviceInfoList = rpcProtocol.getServiceInfoList();
+//        serviceInfoList.add(new RpcServiceInfo(HelloService.class.getName(), "1.0"));
+//
+//        connectionWithOutRegistry.connectServerNode(rpcProtocol);
 
-        connectionWithOutRegistry.connectServerNode(rpcProtocol);
+        RpcClient rpcClient = new RpcClient("127.0.0.1:2181");
 
-        HelloService helloService = RpcClient.createService(HelloService.class, "1.0");
 
-        String str = helloService.hello("yyb");
-        System.out.println("str = " + str);
+        HelloService helloService = rpcClient.createService(HelloService.class, "1.0");
+        for (int i = 0; i < 100; i++) {
+            String str = helloService.hello("yyb");
+            System.out.println("str = " + str);
+        }
 
     }
 }

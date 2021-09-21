@@ -1,4 +1,4 @@
-package com.netty.rpc.server.netty;
+package com.netty.rpc.server.netty.handler;
 
 import com.netty.rpc.codec.Beat;
 import com.netty.rpc.codec.RpcRequest;
@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
- * netty server handler
+ * netty server business logic process handler
  */
 public class BusinessHandler extends SimpleChannelInboundHandler<RpcRequest> {
 
@@ -26,7 +26,7 @@ public class BusinessHandler extends SimpleChannelInboundHandler<RpcRequest> {
      */
     private final ThreadPoolExecutor businessTaskThreadPool;
 
-    BusinessHandler(Map<String, Object> serviceKey2BeanMap, final ThreadPoolExecutor businessTaskThreadPool) {
+    public BusinessHandler(Map<String, Object> serviceKey2BeanMap, final ThreadPoolExecutor businessTaskThreadPool) {
         this.serviceKey2BeanMap = serviceKey2BeanMap;
         this.businessTaskThreadPool = businessTaskThreadPool;
     }
@@ -47,13 +47,4 @@ public class BusinessHandler extends SimpleChannelInboundHandler<RpcRequest> {
         ctx.close();
     }
 
-    @Override
-    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-        if (evt instanceof IdleStateEvent) {
-            ctx.channel().close();
-            logger.warn("Channel idle in last {} seconds, close it", Beat.BEAT_TIMEOUT);
-        } else {
-            super.userEventTriggered(ctx, evt);
-        }
-    }
 }

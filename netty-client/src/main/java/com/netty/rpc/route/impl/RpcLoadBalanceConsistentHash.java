@@ -17,6 +17,7 @@ public class RpcLoadBalanceConsistentHash extends RpcLoadBalance {
 
     @Override
     public RpcProtocol route(String serviceKey, Map<RpcProtocol, RpcClientHandler> connectedServerNodes) throws Exception {
+        // todo 做预加载
         Map<String, List<RpcProtocol>> serviceMap = getServiceMap(connectedServerNodes);
         List<RpcProtocol> addressList = serviceMap.get(serviceKey);
         if (addressList != null && addressList.size() > 0) {

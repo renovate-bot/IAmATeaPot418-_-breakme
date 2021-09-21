@@ -18,12 +18,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-/**
- * RPC Client（Create RPC proxy）
- *
- * @author luxiaoxun
- * @author g-yu
- */
 public class RpcClient implements ApplicationContextAware, DisposableBean {
     private static final Logger logger = LoggerFactory.getLogger(RpcClient.class);
 
@@ -52,7 +46,7 @@ public class RpcClient implements ApplicationContextAware, DisposableBean {
         threadPoolExecutor.submit(task);
     }
 
-    public void stop() {
+    private void stop() {
         threadPoolExecutor.shutdown();
         serviceDiscovery.stop();
         ConnectionManager.getInstance().stop();

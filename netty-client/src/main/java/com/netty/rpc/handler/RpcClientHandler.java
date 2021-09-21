@@ -21,14 +21,7 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
 
     private ConcurrentHashMap<String, RpcFuture> pendingRPC = new ConcurrentHashMap<>();
     private volatile Channel channel;
-    private SocketAddress remotePeer;
     private RpcProtocol rpcProtocol;
-
-    @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        super.channelActive(ctx);
-        this.remotePeer = this.channel.remoteAddress();
-    }
 
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
@@ -37,7 +30,7 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
     }
 
     @Override
-    public void channelRead0(ChannelHandlerContext ctx, RpcResponse response) throws Exception {
+    public void channelRead0(ChannelHandlerContext ctx, RpcResponse response) {
         String requestId = response.getRequestId();
         logger.debug("Receive response: " + requestId);
         RpcFuture rpcFuture = pendingRPC.get(requestId);
@@ -70,19 +63,7 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
         } catch (InterruptedException e) {
             logger.error("Send request exception: " + e.getMessage());
         }
-
         return rpcFuture;
-    }
-
-    @Override
-    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-        if (evt instanceof IdleStateEvent) {
-            //Send ping
-            sendRequest(Beat.BEAT_PING);
-            logger.debug("Client send beat-ping to " + remotePeer);
-        } else {
-            super.userEventTriggered(ctx, evt);
-        }
     }
 
     public void setRpcProtocol(RpcProtocol rpcProtocol) {
