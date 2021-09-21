@@ -13,32 +13,26 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.UUID;
 
-/**
- * Created by luxiaoxun on 2016-03-16.
- */
 public class ObjectProxy<T, P> implements InvocationHandler, RpcService<T, P, SerializableFunction<T>> {
     private static final Logger logger = LoggerFactory.getLogger(ObjectProxy.class);
     private Class<T> clazz;
     private String version;
-
-
-
-    static RpcClientHandler handler;
-
-    public static void setHandler(RpcClientHandler handler1) {
-        handler = handler1;
-    }
-
-
 
     public ObjectProxy(Class<T> clazz, String version) {
         this.clazz = clazz;
         this.version = version;
     }
 
+    /**
+     * 动态代理调用
+     * @param proxy
+     * @param method
+     * @param args
+     * @return
+     * @throws Throwable
+     */
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-
         RpcRequest request = new RpcRequest();
         request.setRequestId(UUID.randomUUID().toString());
         request.setClassName(method.getDeclaringClass().getName());
@@ -47,17 +41,8 @@ public class ObjectProxy<T, P> implements InvocationHandler, RpcService<T, P, Se
         request.setParameters(args);
         request.setVersion(version);
 
-//        String serviceKey = ServiceUtil.makeServiceKey(method.getDeclaringClass().getName(), version);
-//        RpcClientHandler handler = ConnectionManager.getInstance().chooseHandler(serviceKey);
-
-        if (ConnectionWithOutRegistry.first) {
-            ConnectionWithOutRegistry.s.acquire(1);
-            RpcClientHandler handler = ConnectionWithOutRegistry.thisHandler;
-            RpcFuture rpcFuture = handler.sendRequest(request);
-            return rpcFuture.get();
-        }
-        RpcClientHandler handler = ConnectionWithOutRegistry.thisHandler;
-
+        String serviceKey = ServiceUtil.makeServiceKey(method.getDeclaringClass().getName(), version);
+        RpcClientHandler handler = ConnectionManager.getInstance().chooseHandler(serviceKey);
         RpcFuture rpcFuture = handler.sendRequest(request);
         return rpcFuture.get();
     }

@@ -11,19 +11,15 @@ import io.netty.handler.timeout.IdleStateHandler;
 
 import java.util.concurrent.TimeUnit;
 
-/**
- * Created by luxiaoxun on 2016-03-16.
- */
+
 public class RpcClientInitializer extends ChannelInitializer<SocketChannel> {
     @Override
     protected void initChannel(SocketChannel socketChannel) throws Exception {
-//        Serializer serializer = ProtostuffSerializer.class.newInstance();
-//        Serializer serializer = HessianSerializer.class.newInstance();
         Serializer serializer = KryoSerializer.class.newInstance();
         ChannelPipeline cp = socketChannel.pipeline();
         cp.addLast(new IdleStateHandler(0, 0, Beat.BEAT_INTERVAL, TimeUnit.SECONDS));
         cp.addLast(new RpcEncoder(RpcRequest.class, serializer));
-        cp.addLast(new LengthFieldBasedFrameDecoder(65536, 0, 4, 0, 0));
+        cp.addLast(new RpcHeartBeatHandler());
         cp.addLast(new RpcDecoder(RpcResponse.class, serializer));
         cp.addLast(new RpcClientHandler());
     }

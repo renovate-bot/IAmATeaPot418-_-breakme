@@ -10,11 +10,9 @@ import java.util.Objects;
 @Data
 public class RpcProtocol implements Serializable {
     private static final long serialVersionUID = -1102180003395190700L;
-    // service host
+
     private String host;
-    // service port
     private int port;
-    // service info list
     private List<RpcServiceInfo> serviceInfoList;
 
     public String toJson() {

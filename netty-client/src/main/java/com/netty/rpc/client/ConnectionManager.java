@@ -2,6 +2,7 @@ package com.netty.rpc.client;
 
 import com.netty.rpc.handler.RpcClientHandler;
 import com.netty.rpc.handler.RpcClientInitializer;
+import com.netty.rpc.handler.RpcHeartBeatHandler;
 import com.netty.rpc.protocol.RpcProtocol;
 import com.netty.rpc.protocol.RpcServiceInfo;
 import com.netty.rpc.route.RpcLoadBalance;
@@ -12,6 +13,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.util.NettyRuntime;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,8 +29,10 @@ import java.util.concurrent.locks.ReentrantLock;
 public class ConnectionManager {
     private static final Logger logger = LoggerFactory.getLogger(ConnectionManager.class);
 
-    private EventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
-    // 客户端线程池
+    private EventLoopGroup eventLoopGroup = new NioEventLoopGroup(NettyRuntime.availableProcessors() / 2);
+    /**
+     * client建立连线程池
+     */
     private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(4, 8,
             600L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(1000));
 
@@ -36,7 +40,7 @@ public class ConnectionManager {
     private CopyOnWriteArraySet<RpcProtocol> rpcProtocolSet = new CopyOnWriteArraySet<>();
     private ReentrantLock lock = new ReentrantLock();
     private Condition connected = lock.newCondition();
-    private long waitTimeout = 5000;
+    private long waitTimeout = 5000L;
     private RpcLoadBalance loadBalance = new RpcLoadBalanceRoundRobin();
     private volatile boolean isRunning = true;
 
@@ -86,7 +90,6 @@ public class ConnectionManager {
         }
     }
 
-
     public void updateConnectedServer(RpcProtocol rpcProtocol, PathChildrenCacheEvent.Type type) {
         if (rpcProtocol == null) {
             return;
@@ -104,7 +107,7 @@ public class ConnectionManager {
         }
     }
 
-    private void connectServerNode(RpcProtocol rpcProtocol) {
+    public void connectServerNode(RpcProtocol rpcProtocol) {
         if (rpcProtocol.getServiceInfoList() == null || rpcProtocol.getServiceInfoList().isEmpty()) {
             logger.info("No service on node, host: {}, port: {}", rpcProtocol.getHost(), rpcProtocol.getPort());
             return;
@@ -128,13 +131,17 @@ public class ConnectionManager {
                     @Override
                     public void operationComplete(final ChannelFuture channelFuture) throws Exception {
                         if (channelFuture.isSuccess()) {
-                            logger.info("Successfully connect to remote server, remote peer = " + remotePeer);
-                            RpcClientHandler handler = channelFuture.channel().pipeline().get(RpcClientHandler.class);
-                            connectedServerNodes.put(rpcProtocol, handler);
-                            handler.setRpcProtocol(rpcProtocol);
+                            logger.info("Successfully connect to remote server, remote peer = {}", remotePeer);
+                            RpcClientHandler rpcClientHandler = channelFuture.channel().pipeline().get(RpcClientHandler.class);
+                            RpcHeartBeatHandler rpcHeartBeatHandler = channelFuture.channel().pipeline().get(RpcHeartBeatHandler.class);
+                            connectedServerNodes.put(rpcProtocol, rpcClientHandler);
+                            rpcClientHandler.setRpcProtocol(rpcProtocol);
+                            rpcHeartBeatHandler.setRpcProtocol(rpcProtocol);
                             signalAvailableHandler();
                         } else {
-                            logger.error("Can not connect to remote server, remote peer = " + remotePeer);
+                            // 失败进行回收
+                            removeHandler(rpcProtocol);
+                            logger.error("Can not connect to remote server, remote peer = {}", remotePeer);
                         }
                     }
                 });
@@ -162,8 +169,6 @@ public class ConnectionManager {
     }
 
     public RpcClientHandler chooseHandler(String serviceKey) throws Exception {
-
-
         int size = connectedServerNodes.values().size();
         while (isRunning && size <= 0) {
             try {
