@@ -1,4 +1,4 @@
-package com.application.test.client;
+package com.application.test.common.client;
 
 import com.application.test.service.HelloService;
 import com.netty.rpc.RpcClient;

@@ -1,8 +1,8 @@
 package com.application.test.service;
 
-import com.netty.rpc.annotation.NettyRpcService;
+import com.netty.rpc.annotation.BRpcProvider;
 
-@NettyRpcService(value = HelloService.class, version = "1.0")
+@BRpcProvider(value = HelloService.class, version = "1.0", coreThreadPoolSize = 12, maxThreadPoolSize = 13)
 public class HelloServiceImpl implements HelloService {
 
     @Override

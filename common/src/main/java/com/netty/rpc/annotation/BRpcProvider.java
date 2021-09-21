@@ -13,8 +13,12 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Component
-public @interface NettyRpcService {
+public @interface BRpcProvider {
     Class<?> value();
 
     String version() default "";
+
+    int coreThreadPoolSize() default 35;
+
+    int maxThreadPoolSize() default 70;
 }
