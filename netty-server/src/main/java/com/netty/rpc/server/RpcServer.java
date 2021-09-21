@@ -11,6 +11,7 @@ import org.springframework.context.ApplicationContextAware;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @NoArgsConstructor
 public class RpcServer extends NettyServer implements ApplicationContextAware, InitializingBean, DisposableBean  {
@@ -26,6 +27,7 @@ public class RpcServer extends NettyServer implements ApplicationContextAware, I
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         Map<String, Object> beansMap = applicationContext.getBeansWithAnnotation(BRpcProvider.class);
+        AtomicBoolean threadPoolSetting = new AtomicBoolean(false);
         if (Objects.nonNull(beansMap)) {
             beansMap.forEach((key, value) -> {
                 BRpcProvider annotation = value.getClass().getAnnotation(BRpcProvider.class);
@@ -34,8 +36,11 @@ public class RpcServer extends NettyServer implements ApplicationContextAware, I
                 int coreThreadPoolSize = annotation.coreThreadPoolSize();
                 int maxThreadPoolSize = annotation.maxThreadPoolSize();
                 super.addService(serviceName, version, value);
-                super.setCoreThreadPoolSize(coreThreadPoolSize);
-                super.setMaxThreadPoolSize(maxThreadPoolSize);
+                if (maxThreadPoolSize >= coreThreadPoolSize && !threadPoolSetting.get()) {
+                    threadPoolSetting.set(true);
+                    super.setCoreThreadPoolSize(coreThreadPoolSize);
+                    super.setMaxThreadPoolSize(maxThreadPoolSize);
+                }
             });
         }
     }
