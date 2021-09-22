@@ -1,6 +1,6 @@
 package com.netty.rpc.codec;
 
-public final class Beat {
+public final class HeartBeat {
 
     public static final int BEAT_INTERVAL = 30;
     public static final int BEAT_TIMEOUT = 3 * BEAT_INTERVAL;

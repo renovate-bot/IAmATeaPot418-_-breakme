@@ -1,7 +1,7 @@
 package com.netty.rpc.handler;
 
 import com.netty.rpc.client.ConnectionManager;
-import com.netty.rpc.codec.Beat;
+import com.netty.rpc.codec.HeartBeat;
 import com.netty.rpc.protocol.RpcProtocol;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -63,7 +63,7 @@ public class RpcHeartBeatHandler extends ChannelInboundHandlerAdapter {
      */
     private void sendHeartBeatPackage() {
         try {
-            channel.writeAndFlush(Beat.BEAT_PING);
+            channel.writeAndFlush(HeartBeat.BEAT_PING);
         } catch (Exception e) {
             logger.error("Send heartBeatPackage exception: {}", e.getMessage());
         }

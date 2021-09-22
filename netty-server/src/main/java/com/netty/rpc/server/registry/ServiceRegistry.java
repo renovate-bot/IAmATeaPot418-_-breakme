@@ -1,6 +1,6 @@
 package com.netty.rpc.server.registry;
 
-import com.netty.rpc.config.Constant;
+import com.netty.rpc.zookeeper.Constant;
 import com.netty.rpc.protocol.RpcProtocol;
 import com.netty.rpc.protocol.RpcServiceInfo;
 import com.netty.rpc.util.ServiceUtil;
