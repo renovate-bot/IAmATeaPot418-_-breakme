@@ -82,7 +82,7 @@ public class ServiceDiscovery {
     private void getServiceAndUpdateServer(ChildData childData, PathChildrenCacheEvent.Type type) {
         String path = childData.getPath();
         String data = new String(childData.getData(), StandardCharsets.UTF_8);
-        logger.info("Child data updated, path:{},type:{},data:{},", path, type, data);
+        logger.info("Child data is updated, path:{}, type:{}, data:{}.", path, type, data);
         RpcProtocol rpcProtocol =  RpcProtocol.fromJson(data);
         updateConnectedServer(rpcProtocol, type);
     }
