@@ -12,6 +12,7 @@ import java.util.Map;
 
 public abstract class RpcLoadBalance {
 
+    @Deprecated
     protected Map<String, List<RpcProtocol>> getServiceMap(Map<RpcProtocol, RpcClientHandler> connectedServerNodes) {
         Map<String, List<RpcProtocol>> serviceMap = new HashedMap<>();
         if (connectedServerNodes != null && connectedServerNodes.size() > 0) {

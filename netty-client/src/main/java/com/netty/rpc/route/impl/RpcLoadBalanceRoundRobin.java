@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * 轮询
+ */
 public class RpcLoadBalanceRoundRobin extends RpcLoadBalance {
     private AtomicInteger roundRobin;
 
