@@ -1,9 +1,7 @@
 package com.netty.rpc.config;
 
 /**
- * ZooKeeper constant
- *
- * @author luxiaoxun
+ * ZooKeeper settings
  */
 public interface Constant {
     int ZK_SESSION_TIMEOUT = 5000;

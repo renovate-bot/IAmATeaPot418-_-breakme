@@ -7,6 +7,9 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * 服务注册、订阅内容载体
+ */
 @Data
 public class RpcProtocol implements Serializable {
     private static final long serialVersionUID = -1102180003395190700L;
