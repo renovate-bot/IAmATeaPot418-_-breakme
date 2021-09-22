@@ -1,6 +1,7 @@
 package com.netty.rpc.route.impl;
 
 
+import com.netty.rpc.discovery.ProtocolsKeeper;
 import com.netty.rpc.handler.RpcClientHandler;
 import com.netty.rpc.protocol.RpcProtocol;
 import com.netty.rpc.route.RpcLoadBalance;
@@ -37,8 +38,9 @@ public class RpcLoadBalanceRoundRobin extends RpcLoadBalance {
 
     @Override
     public RpcProtocol route(String serviceKey, Map<RpcProtocol, RpcClientHandler> connectedServerNodes) throws Exception {
-        Map<String, List<RpcProtocol>> serviceMap = getServiceMap(connectedServerNodes);
-        List<RpcProtocol> addressList = serviceMap.get(serviceKey);
+//        Map<String, List<RpcProtocol>> serviceMap = getServiceMap(connectedServerNodes);
+//        List<RpcProtocol> addressList = serviceMap.get(serviceKey);
+        List<RpcProtocol> addressList = ProtocolsKeeper.getProtocolsFromServiceKey(serviceKey);
         if (addressList != null && addressList.size() > 0) {
             return doRoute(addressList);
         } else {

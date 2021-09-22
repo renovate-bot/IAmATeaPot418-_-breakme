@@ -1,5 +1,6 @@
 package com.netty.rpc.client;
 
+import com.netty.rpc.discovery.ProtocolsKeeper;
 import com.netty.rpc.handler.RpcClientHandler;
 import com.netty.rpc.handler.RpcClientInitializer;
 import com.netty.rpc.handler.RpcHeartBeatHandler;
@@ -100,8 +101,12 @@ public class ConnectionManager {
             //TODO We may don't need to reconnect remote server if the server'IP and server'port are not changed
             removeAndCloseHandler(rpcProtocol);
             connectServerNode(rpcProtocol);
+            // update key2Protocols
+            ProtocolsKeeper.updateZkChild(rpcProtocol);
         } else if (type == PathChildrenCacheEvent.Type.CHILD_REMOVED) {
             removeAndCloseHandler(rpcProtocol);
+            // update key2Protocols
+            ProtocolsKeeper.removeZkChild(rpcProtocol);
         } else {
             throw new IllegalArgumentException("Unknow type:" + type);
         }
@@ -137,6 +142,8 @@ public class ConnectionManager {
                             connectedServerNodes.put(rpcProtocol, rpcClientHandler);
                             rpcClientHandler.setRpcProtocol(rpcProtocol);
                             rpcHeartBeatHandler.setRpcProtocol(rpcProtocol);
+                            // 方便后续快速选择 在此记录
+                            ProtocolsKeeper.addZkChild(rpcProtocol);
                             signalAvailableHandler();
                         } else {
                             // 失败进行回收

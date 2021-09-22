@@ -1,6 +1,7 @@
 package com.netty.rpc.route.impl;
 
 import com.google.common.hash.Hashing;
+import com.netty.rpc.discovery.ProtocolsKeeper;
 import com.netty.rpc.handler.RpcClientHandler;
 import com.netty.rpc.protocol.RpcProtocol;
 import com.netty.rpc.route.RpcLoadBalance;
@@ -17,9 +18,9 @@ public class RpcLoadBalanceConsistentHash extends RpcLoadBalance {
 
     @Override
     public RpcProtocol route(String serviceKey, Map<RpcProtocol, RpcClientHandler> connectedServerNodes) throws Exception {
-        // todo 做预加载
-        Map<String, List<RpcProtocol>> serviceMap = getServiceMap(connectedServerNodes);
-        List<RpcProtocol> addressList = serviceMap.get(serviceKey);
+//        Map<String, List<RpcProtocol>> serviceMap = getServiceMap(connectedServerNodes);
+//        List<RpcProtocol> addressList = serviceMap.get(serviceKey);
+        List<RpcProtocol> addressList = ProtocolsKeeper.getProtocolsFromServiceKey(serviceKey);
         if (addressList != null && addressList.size() > 0) {
             return doRoute(serviceKey, addressList);
         } else {
