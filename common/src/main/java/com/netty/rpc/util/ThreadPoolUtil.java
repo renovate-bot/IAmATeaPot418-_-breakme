@@ -10,7 +10,7 @@ public class ThreadPoolUtil {
     private static final int BLOCKING_QUEUE_CAPACITY = 1000;
 
     /**
-     * 构造线程池
+     * 构造server线程池
      * @param serviceName 服务接口名
      * @param corePoolSize 核心线程数
      * @param maxPoolSize 最大线程数
@@ -24,6 +24,17 @@ public class ThreadPoolUtil {
                 TimeUnit.SECONDS,
                 new LinkedBlockingQueue<>(BLOCKING_QUEUE_CAPACITY),
                 r -> new Thread(r, getThreadName(serviceName, r)),
+                new ThreadPoolExecutor.AbortPolicy());
+    }
+
+    public static ThreadPoolExecutor makeThreadPool(int corePoolSize, int maxPoolSize, long keepAliveTime) {
+        return new ThreadPoolExecutor(
+                corePoolSize,
+                maxPoolSize,
+                keepAliveTime,
+                TimeUnit.SECONDS,
+                new LinkedBlockingQueue<>(BLOCKING_QUEUE_CAPACITY),
+                Thread::new,
                 new ThreadPoolExecutor.AbortPolicy());
     }
 
