@@ -12,19 +12,19 @@
 
 - 部署zookeeper推荐使用docker
 
-1. 拉取zk镜像       指令：docker pull zookeeper:3.4.14
-2. 查看镜像id       指令：docker images
-3. 拉起容器         指令：docker run -d -p 2181:2181 --name b-zookeeper --restart always {imageId}
-4. 查看容器id       指令：docker ps -a
-5. 进入容器         指令：docker exec -it {containerId} /bin/bash
-6. 起注册中心       指令：./bin/zkCli.sh
+1. 拉取zk镜像&emsp;&emsp;&emsp;指令：docker pull zookeeper:3.4.14
+2. 查看镜像id&emsp;&emsp;&emsp;指令：docker images
+3. 拉起容器&emsp;&emsp;&emsp;&emsp;指令：docker run -d -p 2181:2181 --name b-zookeeper --restart always {imageId}
+4. 查看容器id&emsp;&emsp;&emsp;指令：docker ps -a
+5. 进入容器&emsp;&emsp;&emsp;&emsp;指令：docker exec -it {containerId} /bin/bash
+6. 起注册中心&emsp;&emsp;&emsp;指令：./bin/zkCli.sh
 
-推荐一个zk可视化工具：https://zhuanlan.zhihu.com/p/148534430
+&emsp;&emsp;推荐一个zk可视化工具：https://zhuanlan.zhihu.com/p/148534430
 
 - rpc测试 
 
-1. com.application.test.spring.server.ServerBootstrap  服务端启动
-2. com.application.test.spring.client.ClientTest       客户端启动 并rpc调用HelloService
+1. com.application.test.spring.server.ServerBootstrap.java  服务端启动
+2. com.application.test.spring.client.ClientTest.java       客户端启动 并rpc调用HelloService.java
 
 
 
