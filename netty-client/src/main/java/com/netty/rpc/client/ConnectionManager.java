@@ -7,6 +7,7 @@ import com.netty.rpc.protocol.RpcProtocol;
 import com.netty.rpc.protocol.RpcServiceInfo;
 import com.netty.rpc.route.RpcLoadBalance;
 import com.netty.rpc.route.impl.RpcLoadBalanceRoundRobin;
+import com.netty.rpc.util.ThreadPoolUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -33,8 +34,7 @@ public class ConnectionManager {
     /**
      * client建立连线程池
      */
-    private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(4, 8,
-            600L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(1000));
+    private static ThreadPoolExecutor threadPoolExecutor = ThreadPoolUtil.makeThreadPool(4, 8, 600L);
 
     private Map<RpcProtocol, RpcClientHandler> connectedServerNodes = new ConcurrentHashMap<>();
     private CopyOnWriteArraySet<RpcProtocol> rpcProtocolSet = new CopyOnWriteArraySet<>();
