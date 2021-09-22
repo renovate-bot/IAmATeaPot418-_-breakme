@@ -8,24 +8,29 @@ import com.netty.rpc.route.RpcLoadBalance;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 /**
- * 一致性哈希
+ * 随机
  */
-public class RpcLoadBalanceConsistentHash extends RpcLoadBalance {
+public class RpcLoadBalanceRandom extends RpcLoadBalance {
 
-    private RpcProtocol doRoute(String serviceKey, List<RpcProtocol> addressList) {
-        int index = Hashing.consistentHash(serviceKey.hashCode(), addressList.size());
+    private Random random;
+
+    public RpcLoadBalanceRandom() {
+        this.random = new Random();
+    }
+
+    private RpcProtocol doRoute(List<RpcProtocol> addressList) {
+        int index = random.nextInt(addressList.size());
         return addressList.get(index);
     }
 
     @Override
     public RpcProtocol route(String serviceKey, Map<RpcProtocol, RpcClientHandler> connectedServerNodes) throws Exception {
-//        Map<String, List<RpcProtocol>> serviceMap = getServiceMap(connectedServerNodes);
-//        List<RpcProtocol> addressList = serviceMap.get(serviceKey);
         List<RpcProtocol> addressList = ProtocolsKeeper.getProtocolsFromServiceKey(serviceKey);
         if (addressList != null && addressList.size() > 0) {
-            return doRoute(serviceKey, addressList);
+            return doRoute(addressList);
         } else {
             throw new Exception("Can not find connection for service: " + serviceKey);
         }
