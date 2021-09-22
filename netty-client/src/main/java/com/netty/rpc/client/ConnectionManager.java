@@ -42,6 +42,7 @@ public class ConnectionManager {
     private ReentrantLock lock = new ReentrantLock();
     private Condition connected = lock.newCondition();
     private long waitTimeout = 5000L;
+    //todo 通过注解动态配置 link: RpcClient.setApplicationContext
     private RpcLoadBalance loadBalance = new RpcLoadBalanceRoundRobin();
     private volatile boolean isRunning = true;
 
