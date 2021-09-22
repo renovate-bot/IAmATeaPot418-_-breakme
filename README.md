@@ -2,7 +2,7 @@
 
 一个基于netty的RPC框架
 
-1：基于netty NIO、IO多路复用。
+1：基于netty NIO、IO多路复用。\n
 2：利用zookeeper做服务注册中心。
 3：client与server端建立心跳包保活机制。此外client未知断连时，server端主动关闭，触发client channel Inactive事件并进行重连保证长连接。
 4：自定义传输包，避免TCP沾包问题。
