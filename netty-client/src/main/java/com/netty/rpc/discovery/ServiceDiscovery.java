@@ -1,7 +1,7 @@
 package com.netty.rpc.discovery;
 
 import com.netty.rpc.client.ConnectionManager;
-import com.netty.rpc.config.Constant;
+import com.netty.rpc.zookeeper.Constant;
 import com.netty.rpc.protocol.RpcProtocol;
 import com.netty.rpc.zookeeper.CuratorClient;
 import org.apache.curator.framework.CuratorFramework;

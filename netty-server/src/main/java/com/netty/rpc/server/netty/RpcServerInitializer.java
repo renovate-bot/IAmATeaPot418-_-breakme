@@ -27,7 +27,7 @@ public class RpcServerInitializer extends ChannelInitializer<SocketChannel> {
     public void initChannel(SocketChannel channel) throws Exception {
         Serializer serializer = KryoSerializer.class.newInstance();
         ChannelPipeline cp = channel.pipeline();
-        cp.addLast(new IdleStateHandler(0, 0, Beat.BEAT_TIMEOUT, TimeUnit.SECONDS));
+        cp.addLast(new IdleStateHandler(0, 0, HeartBeat.BEAT_TIMEOUT, TimeUnit.SECONDS));
         cp.addLast(new RpcDecoder(RpcRequest.class, serializer));
         cp.addLast(new RpcEncoder(RpcResponse.class, serializer));
         cp.addLast(new HeartBeatHandler());

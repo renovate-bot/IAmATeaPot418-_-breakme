@@ -1,14 +1,12 @@
 package com.netty.rpc.server.netty.handler;
 
-import com.netty.rpc.codec.Beat;
+import com.netty.rpc.codec.HeartBeat;
 import com.netty.rpc.codec.RpcRequest;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.timeout.IdleStateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.net.SocketAddress;
 
 public class HeartBeatHandler extends ChannelInboundHandlerAdapter {
     private static final Logger logger = LoggerFactory.getLogger(HeartBeatHandler.class);
@@ -24,7 +22,7 @@ public class HeartBeatHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof RpcRequest) {
             RpcRequest request = (RpcRequest) msg;
-            if (Beat.BEAT_ID.equalsIgnoreCase(request.getRequestId())) {
+            if (HeartBeat.BEAT_ID.equalsIgnoreCase(request.getRequestId())) {
                 logger.info("Server read heartbeat ping from {}", ctx.channel().remoteAddress().toString());
                 return;
             }
@@ -42,7 +40,7 @@ public class HeartBeatHandler extends ChannelInboundHandlerAdapter {
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof IdleStateEvent) {
             ctx.channel().close();
-            logger.warn("Channel idle in last {} seconds, close it", Beat.BEAT_TIMEOUT);
+            logger.warn("Channel idle in last {} seconds, close it", HeartBeat.BEAT_TIMEOUT);
         } else {
             super.userEventTriggered(ctx, evt);
         }
