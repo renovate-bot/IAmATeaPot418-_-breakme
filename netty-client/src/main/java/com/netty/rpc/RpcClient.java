@@ -1,6 +1,6 @@
 package com.netty.rpc;
 
-import com.netty.rpc.annotation.RpcAutowired;
+import com.netty.rpc.annotation.BRpcConsumer;
 import com.netty.rpc.client.ConnectionManager;
 import com.netty.rpc.discovery.ServiceDiscovery;
 import com.netty.rpc.proxy.ObjectProxy;
@@ -65,7 +65,7 @@ public class RpcClient implements ApplicationContextAware, DisposableBean {
             Field[] fields = bean.getClass().getDeclaredFields();
             try {
                 for (Field field : fields) {
-                    RpcAutowired rpcAutowired = field.getAnnotation(RpcAutowired.class);
+                    BRpcConsumer rpcAutowired = field.getAnnotation(BRpcConsumer.class);
                     if (rpcAutowired != null) {
                         String version = rpcAutowired.version();
                         field.setAccessible(true);
