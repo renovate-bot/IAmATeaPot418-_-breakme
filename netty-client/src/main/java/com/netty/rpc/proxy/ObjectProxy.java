@@ -1,7 +1,6 @@
 package com.netty.rpc.proxy;
 
 import com.netty.rpc.client.ConnectionManager;
-import com.netty.rpc.client.ConnectionWithOutRegistry;
 import com.netty.rpc.codec.RpcRequest;
 import com.netty.rpc.future.RpcFuture;
 import com.netty.rpc.handler.RpcClientHandler;
