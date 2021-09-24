@@ -34,7 +34,7 @@ public class BusinessTask implements Runnable {
      * 写出任务
      */
     private void task() {
-        logger.info("Receive request {}", request.getRequestId());
+        logger.info("Receive request {}.", request.getRequestId());
         RpcResponse response = new RpcResponse();
         response.setRequestId(request.getRequestId());
         try {
@@ -42,12 +42,12 @@ public class BusinessTask implements Runnable {
             response.setResult(result);
         } catch (Throwable t) {
             response.setError(t.toString());
-            logger.error("RPC Server handle request error", t);
+            logger.error("RPC Server handle request error.", t);
         }
         ctx.writeAndFlush(response).addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture channelFuture) throws Exception {
-                logger.info("Send response for request {}", request.getRequestId());
+                logger.info("Send response for request {}.", request.getRequestId());
             }
         });
     }
@@ -64,7 +64,7 @@ public class BusinessTask implements Runnable {
         String serviceKey = ServiceUtil.makeServiceKey(className, version);
         Object serviceBean = serviceKey2BeanMap.get(serviceKey);
         if (serviceBean == null) {
-            logger.error("Can not find service implement with interface name: {} and version: {}", className, version);
+            logger.error("Can not find service implement with interface name: {} and version: {}.", className, version);
             return null;
         }
         return ReflectInvoker.handle(request, serviceBean);

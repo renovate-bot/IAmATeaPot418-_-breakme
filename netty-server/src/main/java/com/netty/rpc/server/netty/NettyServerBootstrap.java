@@ -29,7 +29,7 @@ public class NettyServerBootstrap implements Runnable {
 
     private ThreadPoolExecutor businessTaskThreadPool;
 
-    public NettyServerBootstrap(
+    NettyServerBootstrap(
             int corePoolSize, int maxPoolSize,
             String serverName,
             String serverAddress,
