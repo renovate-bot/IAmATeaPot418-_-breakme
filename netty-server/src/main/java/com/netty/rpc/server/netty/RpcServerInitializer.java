@@ -18,7 +18,7 @@ public class RpcServerInitializer extends ChannelInitializer<SocketChannel> {
     private Map<String, Object> serviceKey2BeanMap;
     private ThreadPoolExecutor businessTaskThreadPool;
 
-    public RpcServerInitializer(Map<String, Object> serviceKey2BeanMap, ThreadPoolExecutor businessTaskThreadPool) {
+    RpcServerInitializer(Map<String, Object> serviceKey2BeanMap, ThreadPoolExecutor businessTaskThreadPool) {
         this.serviceKey2BeanMap = serviceKey2BeanMap;
         this.businessTaskThreadPool = businessTaskThreadPool;
     }
