@@ -21,7 +21,7 @@ public class NettyServer extends Server {
      */
     private int coreThreadPoolSize = 35;
     /**
-     * 业务线程池子最大线程数
+     * 业务线程池最大线程数
      */
     private int maxThreadPoolSize = 70;
 
