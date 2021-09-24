@@ -4,7 +4,7 @@
 
 1. 基于netty NIO、IO多路复用。
 2. client与server端建立心跳包保活机制。此外client未知断连时，server端主动关闭，触发client channel Inactive事件并进行重连保证长连接。
-3. 使用kyro序列化，自定义传输包，及传输格式，避免TCP沾包问题。
+3. 使用kryo序列化，自定义传输包，及传输格式，避免TCP沾包问题。
 4. 利用zookeeper做服务注册中心。
 5. 整合spring注解，可通过注解便捷使用，此外可在注解中配置server端业务线程池核心线程数及最大线程数。
 
