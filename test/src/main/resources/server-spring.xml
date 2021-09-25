@@ -7,10 +7,12 @@
        http://www.springframework.org/schema/context
        http://www.springframework.org/schema/context/spring-context.xsd">
 
+    <context:property-placeholder location="classpath:application.properties"/>
+
     <context:component-scan base-package="com.application.test.service"/>
 
     <bean id="rpcServer" class="com.netty.rpc.server.RpcServer">
-        <constructor-arg name="serverAddress" value="127.0.0.1:18877"/>
-        <constructor-arg name="registryAddress" value="127.0.0.1:2181"/>
+        <constructor-arg name="serverAddress" value="${bRPC.server.address}"/>
+        <constructor-arg name="registryAddress" value="${bRPC.registry.address}"/>
     </bean>
 </beans>
