@@ -3,7 +3,7 @@ package com.netty.rpc.server.netty.handler;
 import com.netty.rpc.codec.RpcRequest;
 import com.netty.rpc.server.task.BusinessTask;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +13,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 /**
  * netty server business logic process handler
  */
-public class BusinessHandler extends SimpleChannelInboundHandler<RpcRequest> {
+public class BusinessHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger logger = LoggerFactory.getLogger(BusinessHandler.class);
 
@@ -32,11 +32,11 @@ public class BusinessHandler extends SimpleChannelInboundHandler<RpcRequest> {
     /**
      * 获取rpcRequest进行业务处理
      * @param ctx
-     * @param request
+     * @param msg 信息
      */
     @Override
-    public void channelRead0(final ChannelHandlerContext ctx, final RpcRequest request) {
-        businessTaskThreadPool.execute(new BusinessTask(request, serviceKey2BeanMap, ctx));
+    public void channelRead(ChannelHandlerContext ctx, Object msg) {
+        businessTaskThreadPool.execute(new BusinessTask((RpcRequest) msg, serviceKey2BeanMap, ctx));
     }
 
     @Override
