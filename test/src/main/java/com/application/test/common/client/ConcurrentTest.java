@@ -23,7 +23,7 @@ public class ConcurrentTest {
             logger.info(res);
         }
 
-        for (int i = 1; i <= 10; i++) {
+        for (int i = 1; i <= 20; i++) {
             Thread[] ts = new Thread[i];
             for (int j = 1; j <= i; j++) {
                 ts[j - 1] = new Thread(new Task());
