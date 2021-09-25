@@ -17,7 +17,6 @@ public class ProtocolsKeeper {
     private static final Logger logger = LoggerFactory.getLogger(ProtocolsKeeper.class);
 
     private static Map<String, RpcProtocolsContainer> key2Protocols = new ConcurrentHashMap<>();
-    private static final Object lock = new Object();
 
     @Data
     private static class RpcProtocolsContainer {
@@ -29,7 +28,7 @@ public class ProtocolsKeeper {
      * zk发生加入新的RpcProtocol 时更新key2Protocols
      * @param rpcProtocol 注册信息
      */
-    public static void addZkChild(RpcProtocol rpcProtocol) {
+    public synchronized static void addZkChild(RpcProtocol rpcProtocol) {
         if (Objects.isNull(rpcProtocol)) {
             return;
         }
@@ -44,15 +43,14 @@ public class ProtocolsKeeper {
                 }
                 List<RpcProtocol> rpcProtocols = rpcProtocolsContainer.getRpcProtocols();
                 Map<RpcProtocol, Integer> index2Protocols = rpcProtocolsContainer.getIndex2Protocols();
-                synchronized (lock) {
-                    Integer index = index2Protocols.get(rpcProtocol);
-                    // 如果已经存在 移除进行更新
-                    if (Objects.nonNull(index)) {
-                        rpcProtocols.remove(index.intValue());
-                    }
-                    index2Protocols.put(rpcProtocol, rpcProtocols.size());
-                    rpcProtocols.add(rpcProtocol);
+
+                Integer index = index2Protocols.get(rpcProtocol);
+                // 如果已经存在 移除进行更新
+                if (Objects.nonNull(index)) {
+                    rpcProtocols.remove(index.intValue());
                 }
+                index2Protocols.put(rpcProtocol, rpcProtocols.size());
+                rpcProtocols.add(rpcProtocol);
             } catch (Exception e) {
                 logger.error("addZkChild operation exception, serviceInfo: {}, exception: {}", serviceInfo, e.getMessage());
             }
@@ -63,7 +61,7 @@ public class ProtocolsKeeper {
      * 更新服务列表
      * @param rpcProtocol
      */
-    public static void updateZkChild(RpcProtocol rpcProtocol) {
+    public synchronized static void updateZkChild(RpcProtocol rpcProtocol) {
         if (Objects.isNull(rpcProtocol)) {
             return;
         }
@@ -75,7 +73,7 @@ public class ProtocolsKeeper {
      * 删除rpcProtocol 更新key2Protocols
      * @param rpcProtocol
      */
-    public static void removeZkChild(RpcProtocol rpcProtocol) {
+    public synchronized static void removeZkChild(RpcProtocol rpcProtocol) {
         if (Objects.isNull(rpcProtocol)) {
             return;
         }
@@ -89,14 +87,13 @@ public class ProtocolsKeeper {
                 }
                 Map<RpcProtocol, Integer> index2Protocols = rpcProtocolsContainer.getIndex2Protocols();
                 List<RpcProtocol> rpcProtocols = rpcProtocolsContainer.getRpcProtocols();
-                synchronized (lock) {
-                    Integer index = index2Protocols.get(rpcProtocol);
-                    if (Objects.isNull(index)) {
-                        continue;
-                    }
-                    rpcProtocols.remove(index.intValue());
-                    index2Protocols.remove(rpcProtocol);
+
+                Integer index = index2Protocols.get(rpcProtocol);
+                if (Objects.isNull(index)) {
+                    continue;
                 }
+                rpcProtocols.remove(index.intValue());
+                index2Protocols.remove(rpcProtocol);
             } catch (Exception e) {
                 logger.error("removeZkChild operation exception, serviceInfo: {}, exception: {}", serviceInfo, e.getMessage());
             }
