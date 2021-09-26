@@ -7,7 +7,7 @@
        http://www.springframework.org/schema/context
        http://www.springframework.org/schema/context/spring-context.xsd">
 
-    <context:component-scan base-package="com.application.test.spring.client"/>
+<!--    <context:component-scan base-package="com.application.test.spring.client"/>-->
 
     <bean id="rpcClient" class="com.netty.rpc.RpcClient">
         <constructor-arg value="127.0.0.1:2181"/>
