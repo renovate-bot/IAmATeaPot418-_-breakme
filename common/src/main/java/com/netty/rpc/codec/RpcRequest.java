@@ -2,12 +2,8 @@ package com.netty.rpc.codec;
 
 import lombok.Data;
 
-import java.io.Serializable;
-
 @Data
-public class RpcRequest implements Serializable {
-    private static final long serialVersionUID = -2524587347775862771L;
-
+public class RpcRequest {
     private String requestId;
     private String className;
     private String methodName;
