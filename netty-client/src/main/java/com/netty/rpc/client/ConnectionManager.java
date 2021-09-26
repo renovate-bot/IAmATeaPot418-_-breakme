@@ -1,6 +1,6 @@
 package com.netty.rpc.client;
 
-import com.netty.rpc.discovery.ProtocolsKeeper;
+import com.netty.rpc.route.ProtocolsKeeper;
 import com.netty.rpc.handler.RpcClientHandler;
 import com.netty.rpc.handler.RpcClientInitializer;
 import com.netty.rpc.handler.RpcHeartBeatHandler;
@@ -186,7 +186,7 @@ public class ConnectionManager {
                 logger.error("Waiting for available service is interrupted!", e);
             }
         }
-        RpcProtocol rpcProtocol = loadBalance.route(serviceKey, connectedServerNodes);
+        RpcProtocol rpcProtocol = loadBalance.route(serviceKey);
         RpcClientHandler handler = connectedServerNodes.get(rpcProtocol);
         if (handler != null) {
             return handler;

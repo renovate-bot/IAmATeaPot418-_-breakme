@@ -1,9 +1,7 @@
 package com.netty.rpc.route.impl;
 
-import com.google.common.hash.Hashing;
-import com.netty.rpc.discovery.ProtocolsKeeper;
-import com.netty.rpc.handler.RpcClientHandler;
 import com.netty.rpc.protocol.RpcProtocol;
+import com.netty.rpc.route.ProtocolsKeeper;
 import com.netty.rpc.route.RpcLoadBalance;
 
 import java.util.List;
@@ -13,7 +11,7 @@ import java.util.Random;
 /**
  * 随机
  */
-public class RpcLoadBalanceRandom extends RpcLoadBalance {
+public class RpcLoadBalanceRandom implements RpcLoadBalance {
 
     private Random random;
 
@@ -27,7 +25,7 @@ public class RpcLoadBalanceRandom extends RpcLoadBalance {
     }
 
     @Override
-    public RpcProtocol route(String serviceKey, Map<RpcProtocol, RpcClientHandler> connectedServerNodes) throws Exception {
+    public RpcProtocol route(String serviceKey) throws Exception {
         List<RpcProtocol> addressList = ProtocolsKeeper.getProtocolsFromServiceKey(serviceKey);
         if (addressList != null && addressList.size() > 0) {
             return doRoute(addressList);

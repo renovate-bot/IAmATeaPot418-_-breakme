@@ -1,4 +1,4 @@
-package com.netty.rpc.discovery;
+package com.netty.rpc.route;
 
 import com.netty.rpc.protocol.RpcProtocol;
 import com.netty.rpc.protocol.RpcServiceInfo;

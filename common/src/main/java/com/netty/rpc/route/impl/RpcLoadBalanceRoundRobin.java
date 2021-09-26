@@ -1,9 +1,8 @@
 package com.netty.rpc.route.impl;
 
 
-import com.netty.rpc.discovery.ProtocolsKeeper;
-import com.netty.rpc.handler.RpcClientHandler;
 import com.netty.rpc.protocol.RpcProtocol;
+import com.netty.rpc.route.ProtocolsKeeper;
 import com.netty.rpc.route.RpcLoadBalance;
 
 import java.util.List;
@@ -13,7 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * 轮询
  */
-public class RpcLoadBalanceRoundRobin extends RpcLoadBalance {
+public class RpcLoadBalanceRoundRobin implements RpcLoadBalance {
     private AtomicInteger roundRobin;
 
     public RpcLoadBalanceRoundRobin() {
@@ -40,9 +39,7 @@ public class RpcLoadBalanceRoundRobin extends RpcLoadBalance {
     }
 
     @Override
-    public RpcProtocol route(String serviceKey, Map<RpcProtocol, RpcClientHandler> connectedServerNodes) throws Exception {
-//        Map<String, List<RpcProtocol>> serviceMap = getServiceMap(connectedServerNodes);
-//        List<RpcProtocol> addressList = serviceMap.get(serviceKey);
+    public RpcProtocol route(String serviceKey) throws Exception {
         List<RpcProtocol> addressList = ProtocolsKeeper.getProtocolsFromServiceKey(serviceKey);
         if (addressList != null && addressList.size() > 0) {
             return doRoute(addressList);
