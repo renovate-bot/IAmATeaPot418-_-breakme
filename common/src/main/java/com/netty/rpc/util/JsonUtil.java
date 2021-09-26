@@ -31,7 +31,7 @@ public class JsonUtil {
     }
 
     public static <T> byte[] serialize(T obj) {
-        byte[] bytes = new byte[0];
+        byte[] bytes;
         try {
             bytes = objMapper.writeValueAsBytes(obj);
         } catch (JsonProcessingException e) {
@@ -41,7 +41,7 @@ public class JsonUtil {
     }
 
     public static <T> T deserialize(byte[] data, Class<T> cls) {
-        T obj = null;
+        T obj;
         try {
             obj = objMapper.readValue(data, cls);
         } catch (IOException e) {
@@ -51,7 +51,7 @@ public class JsonUtil {
     }
 
     public static <type> type jsonToObject(String json, Class<?> cls) {
-        type obj = null;
+        type obj;
         JavaType javaType = objMapper.getTypeFactory().constructType(cls);
         try {
             obj = objMapper.readValue(json, javaType);
@@ -63,7 +63,7 @@ public class JsonUtil {
 
     public static <type> type jsonToObjectList(String json,
                                                Class<?> collectionClass, Class<?>... elementClass) {
-        type obj = null;
+        type obj;
         JavaType javaType = objMapper.getTypeFactory().constructParametricType(
                 collectionClass, elementClass);
         try {
@@ -76,7 +76,7 @@ public class JsonUtil {
 
     public static <type> type jsonToObjectHashMap(String json,
                                                   Class<?> keyClass, Class<?> valueClass) {
-        type obj = null;
+        type obj;
         JavaType javaType = objMapper.getTypeFactory().constructParametricType(HashMap.class, keyClass, valueClass);
         try {
             obj = objMapper.readValue(json, javaType);
@@ -87,7 +87,7 @@ public class JsonUtil {
     }
 
     public static String objectToJson(Object o) {
-        String json = "";
+        String json;
         try {
             json = objMapper.writeValueAsString(o);
         } catch (IOException e) {
