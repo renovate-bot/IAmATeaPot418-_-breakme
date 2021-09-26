@@ -45,7 +45,7 @@ public class ConcurrentTest {
         public void run() {
             for (int i = 0; i < 50000; i++) {
                 String res = helloService.hello("Yan Yibin");
-                // logger.info(res);
+                 logger.info(res);
             }
             semaphore.release(1);
         }
