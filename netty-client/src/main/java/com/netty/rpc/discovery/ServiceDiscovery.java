@@ -35,12 +35,12 @@ public class ServiceDiscovery {
             // Add watch listener
             curatorClient.watchPathChildrenNode(Constant.ZK_REGISTRY_PATH, new PathChildrenCacheListener() {
                 @Override
-                public void childEvent(CuratorFramework curatorFramework, PathChildrenCacheEvent pathChildrenCacheEvent) throws Exception {
+                public void childEvent(CuratorFramework curatorFramework, PathChildrenCacheEvent pathChildrenCacheEvent) {
                     PathChildrenCacheEvent.Type type = pathChildrenCacheEvent.getType();
                     ChildData childData = pathChildrenCacheEvent.getData();
                     switch (type) {
                         case CONNECTION_RECONNECTED:
-                            logger.info("Reconnected to zk, try to get latest service list");
+                            logger.info("Reconnected to zk, try to get latest service list.");
                             getServiceAndUpdateServer();
                             break;
                         case CHILD_ADDED:
@@ -65,17 +65,17 @@ public class ServiceDiscovery {
             List<String> nodeList = curatorClient.getChildren(Constant.ZK_REGISTRY_PATH);
             List<RpcProtocol> dataList = new ArrayList<>();
             for (String node : nodeList) {
-                logger.debug("Service node: " + node);
+                logger.debug("Service node: {}.", node);
                 byte[] bytes = curatorClient.getData(Constant.ZK_REGISTRY_PATH + "/" + node);
                 String json = new String(bytes);
                 RpcProtocol rpcProtocol = RpcProtocol.fromJson(json);
                 dataList.add(rpcProtocol);
             }
-            logger.debug("Service node data: {}", dataList);
+            logger.debug("Service node data: {}.", dataList);
             //Update the service info based on the latest data
             updateConnectedServer(dataList);
         } catch (Exception e) {
-            logger.error("Get node exception: " + e.getMessage());
+            logger.error("Get node exception: {}.", e.getMessage());
         }
     }
 
