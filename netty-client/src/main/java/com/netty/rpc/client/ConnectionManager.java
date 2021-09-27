@@ -102,14 +102,10 @@ public class ConnectionManager {
             //TODO We may don't need to reconnect remote server if the server'IP and server'port are not changed
             removeAndCloseHandler(rpcProtocol);
             connectServerNode(rpcProtocol);
-            // update key2Protocols
-            ProtocolsKeeper.updateZkChild(rpcProtocol);
         } else if (type == PathChildrenCacheEvent.Type.CHILD_REMOVED) {
             removeAndCloseHandler(rpcProtocol);
-            // update key2Protocols
-            ProtocolsKeeper.removeZkChild(rpcProtocol);
         } else {
-            throw new IllegalArgumentException("Unknow type:" + type);
+            throw new IllegalArgumentException("Unknown type: " + type);
         }
     }
 
@@ -202,11 +198,13 @@ public class ConnectionManager {
         }
         connectedServerNodes.remove(rpcProtocol);
         rpcProtocolSet.remove(rpcProtocol);
+        ProtocolsKeeper.removeZkChild(rpcProtocol);
     }
 
     public void removeHandler(RpcProtocol rpcProtocol) {
         rpcProtocolSet.remove(rpcProtocol);
         connectedServerNodes.remove(rpcProtocol);
+        ProtocolsKeeper.removeZkChild(rpcProtocol);
         logger.info("Remove one connection, host: {}, port: {}", rpcProtocol.getHost(), rpcProtocol.getPort());
     }
 
