@@ -30,10 +30,9 @@ public class RpcDecoder extends ByteToMessageDecoder {
      * @param ctx
      * @param in 缓冲区
      * @param out
-     * @throws Exception
      */
     @Override
-    public final void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
+    public final void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) {
         if (in.readableBytes() < 4) {
             return;
         }

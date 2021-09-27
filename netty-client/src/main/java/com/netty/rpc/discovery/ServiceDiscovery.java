@@ -73,7 +73,7 @@ public class ServiceDiscovery {
             }
             logger.debug("Service node data: {}", dataList);
             //Update the service info based on the latest data
-            UpdateConnectedServer(dataList);
+            updateConnectedServer(dataList);
         } catch (Exception e) {
             logger.error("Get node exception: " + e.getMessage());
         }
@@ -87,7 +87,7 @@ public class ServiceDiscovery {
         updateConnectedServer(rpcProtocol, type);
     }
 
-    private void UpdateConnectedServer(List<RpcProtocol> dataList) {
+    private void updateConnectedServer(List<RpcProtocol> dataList) {
         ConnectionManager.getInstance().updateConnectedServer(dataList);
     }
 

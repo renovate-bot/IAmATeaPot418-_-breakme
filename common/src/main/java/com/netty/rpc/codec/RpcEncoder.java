@@ -25,10 +25,9 @@ public class RpcEncoder extends MessageToByteEncoder {
      * @param ctx
      * @param in
      * @param out
-     * @throws Exception
      */
     @Override
-    public void encode(ChannelHandlerContext ctx, Object in, ByteBuf out) throws Exception {
+    public void encode(ChannelHandlerContext ctx, Object in, ByteBuf out) {
         if (genericClass.isInstance(in)) {
             try {
                 byte[] data = serializer.serialize(in);
