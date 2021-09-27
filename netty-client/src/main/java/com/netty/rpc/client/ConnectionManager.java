@@ -16,6 +16,8 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.NettyRuntime;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,10 +66,7 @@ public class ConnectionManager {
         if (serviceList != null && serviceList.size() > 0) {
             // Update local server nodes cache
             HashSet<RpcProtocol> serviceSet = new HashSet<>(serviceList.size());
-            for (int i = 0; i < serviceList.size(); ++i) {
-                RpcProtocol rpcProtocol = serviceList.get(i);
-                serviceSet.add(rpcProtocol);
-            }
+            serviceSet.addAll(serviceList);
 
             // Add new server info
             for (final RpcProtocol rpcProtocol : serviceSet) {
@@ -99,13 +98,61 @@ public class ConnectionManager {
         if (type == PathChildrenCacheEvent.Type.CHILD_ADDED && !rpcProtocolSet.contains(rpcProtocol)) {
             connectServerNode(rpcProtocol);
         } else if (type == PathChildrenCacheEvent.Type.CHILD_UPDATED) {
-            //TODO We may don't need to reconnect remote server if the server'IP and server'port are not changed
+            // 对于主机ip & port没有改变的zk child更新，不进行重新连接。直接更新connectedServerNodes rpcProtocolSet ProtocolsKeeper
+            RpcProtocolChanger rpcProtocolChanger = serverHostUnChange(rpcProtocol);
+            if (rpcProtocolChanger.isNeedChange()) {
+                RpcProtocol oldProtocol = rpcProtocolChanger.getOldProtocol();
+                RpcClientHandler rpcClientHandler = connectedServerNodes.get(oldProtocol);
+                connectedServerNodes.put(rpcProtocol, rpcClientHandler);
+                connectedServerNodes.remove(oldProtocol);
+
+                rpcProtocolSet.add(rpcProtocol);
+                rpcProtocolSet.remove(oldProtocol);
+
+                ProtocolsKeeper.removeZkChild(oldProtocol);
+                ProtocolsKeeper.addZkChild(rpcProtocol);
+                return;
+            }
             removeAndCloseHandler(rpcProtocol);
             connectServerNode(rpcProtocol);
         } else if (type == PathChildrenCacheEvent.Type.CHILD_REMOVED) {
             removeAndCloseHandler(rpcProtocol);
         } else {
             throw new IllegalArgumentException("Unknown type: " + type);
+        }
+    }
+
+    /**
+     * 判断zk节点变更时 host ip & port是否改变
+     * 返回是否需要改变判断 & 需要替换的protocol
+     * @return
+     */
+    private RpcProtocolChanger serverHostUnChange(RpcProtocol rpcProtocol) {
+        for (RpcProtocol presentProtocol : rpcProtocolSet) {
+            String presentHost = presentProtocol.getHost();
+            int presentPort = presentProtocol.getPort();
+            if (presentHost != null && !"".equals(presentHost)) {
+                if (presentHost.equals(rpcProtocol.getHost()) && presentPort == rpcProtocol.getPort()) {
+                    return new RpcProtocolChanger(true, presentProtocol);
+                }
+            }
+        }
+        return new RpcProtocolChanger(false);
+    }
+
+    @Data
+    @NoArgsConstructor
+    private static class RpcProtocolChanger {
+        boolean needChange;
+        RpcProtocol oldProtocol;
+
+        RpcProtocolChanger(boolean needChange, RpcProtocol oldProtocol) {
+            this.needChange = needChange;
+            this.oldProtocol = oldProtocol;
+        }
+
+        RpcProtocolChanger(boolean needChange) {
+            this.needChange = needChange;
         }
     }
 
@@ -187,7 +234,7 @@ public class ConnectionManager {
         if (handler != null) {
             return handler;
         } else {
-            throw new Exception("Can not get available connection");
+            throw new Exception("Can not get available connection.");
         }
     }
 
