@@ -58,18 +58,6 @@ public class ProtocolsKeeper {
     }
 
     /**
-     * 更新服务列表
-     * @param rpcProtocol
-     */
-    public synchronized static void updateZkChild(RpcProtocol rpcProtocol) {
-        if (Objects.isNull(rpcProtocol)) {
-            return;
-        }
-        removeZkChild(rpcProtocol);
-        addZkChild(rpcProtocol);
-    }
-
-    /**
      * 删除rpcProtocol 更新key2Protocols
      * @param rpcProtocol
      */
