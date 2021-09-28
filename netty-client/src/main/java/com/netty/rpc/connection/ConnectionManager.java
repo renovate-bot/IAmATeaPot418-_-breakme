@@ -60,8 +60,8 @@ public class ConnectionManager implements Observer {
     }
 
     /**
-     * zk 有根据事件进行更新的方法
-     * nacos 没有
+     * zk 根据事件进行更新
+     * nacos 没有事件类型更新
      * @param rpcProtocols rpc server信息
      * @param type 更新类型（nacos更新类型以及zk全量更新为null）
      */
