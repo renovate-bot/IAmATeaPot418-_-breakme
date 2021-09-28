@@ -9,7 +9,7 @@ import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.netty.rpc.observation.Observer;
 import com.netty.rpc.protocol.RpcProtocol;
 import com.netty.rpc.registry.ServiceDiscovery;
-import com.netty.rpc.zookeeper.Constant;
+import com.netty.rpc.registry.Constant;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,4 +1,4 @@
-package com.netty.rpc.zookeeper;
+package com.netty.rpc.registry;
 
 /**
  * ZooKeeper settings

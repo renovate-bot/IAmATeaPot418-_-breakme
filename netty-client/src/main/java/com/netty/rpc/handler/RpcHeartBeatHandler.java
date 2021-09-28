@@ -1,8 +1,6 @@
 package com.netty.rpc.handler;
 
-import com.netty.rpc.client.ConnectionManager;
 import com.netty.rpc.codec.HeartBeat;
-import com.netty.rpc.protocol.RpcProtocol;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
