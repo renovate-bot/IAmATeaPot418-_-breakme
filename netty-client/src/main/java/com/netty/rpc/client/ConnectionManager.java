@@ -1,5 +1,10 @@
 package com.netty.rpc.client;
 
+import com.netty.rpc.observation.Observer;
+import com.netty.rpc.observation.Subject;
+import com.netty.rpc.registry.ServiceDiscovery;
+import com.netty.rpc.registry.nacos.NacosDiscovery;
+import com.netty.rpc.registry.zookeeper.ZKDiscovery;
 import com.netty.rpc.route.ProtocolsKeeper;
 import com.netty.rpc.handler.RpcClientHandler;
 import com.netty.rpc.handler.RpcClientInitializer;
@@ -23,14 +28,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class ConnectionManager {
+public class ConnectionManager implements Observer {
     private static final Logger logger = LoggerFactory.getLogger(ConnectionManager.class);
 
     private EventLoopGroup eventLoopGroup = new NioEventLoopGroup(NettyRuntime.availableProcessors() / 2);
@@ -48,13 +51,67 @@ public class ConnectionManager {
     private RpcLoadBalance loadBalance = new RpcLoadBalanceRoundRobin();
     private volatile boolean isRunning = true;
 
-    private ConnectionManager() {
+    private ServiceDiscovery serviceDiscovery;
+
+    /**
+     * 观察者模式 持有事件
+     * @param serviceDiscovery 服务发现
+     */
+    private ConnectionManager(ServiceDiscovery serviceDiscovery) {
+        this.serviceDiscovery = serviceDiscovery;
     }
 
+    /**
+     * zk 有根据事件进行更新的方法
+     * nacos 没有
+     * @param rpcProtocols rpc server信息
+     * @param type 更新类型（nacos更新类型以及zk全量更新为null）
+     */
+    @Override
+    public void update(List<RpcProtocol> rpcProtocols, PathChildrenCacheEvent.Type type) {
+        if (type == null) {
+            updateConnectedServer(rpcProtocols);
+            return;
+        }
+        RpcProtocol rpcProtocol = rpcProtocols.get(0);
+        updateConnectedServer(rpcProtocol, type);
+    }
+
+    /**
+     * dcl单例
+     */
     private static class SingletonHolder {
-        private static final ConnectionManager instance = new ConnectionManager();
+        private static volatile ConnectionManager instance;
+
+        static ConnectionManager getInstance(String hostAddress) {
+            if (instance == null) {
+                synchronized (SingletonHolder.class) {
+                    if (instance == null) {
+//                        instance = new ConnectionManager(new NacosDiscovery(hostAddress));
+                        instance = new ConnectionManager(new ZKDiscovery(hostAddress));
+                        // 注册观察事件
+                        instance.getServiceDiscovery().registerObserver(instance);
+                    }
+                }
+            }
+            return instance;
+        }
+
     }
 
+    /**
+     * 获取并初始化实例
+     * @param hostAddress
+     * @return
+     */
+    public static ConnectionManager getAndInitInstance(String hostAddress) {
+        return SingletonHolder.getInstance(hostAddress);
+    }
+
+    /**
+     * 初始化后获取单例方法
+     * @return
+     */
     public static ConnectionManager getInstance() {
         return SingletonHolder.instance;
     }
@@ -267,5 +324,9 @@ public class ConnectionManager {
         signalAvailableHandler();
         threadPoolExecutor.shutdown();
         eventLoopGroup.shutdownGracefully();
+    }
+
+    public ServiceDiscovery getServiceDiscovery() {
+        return serviceDiscovery;
     }
 }

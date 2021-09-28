@@ -1,10 +1,11 @@
 package com.netty.rpc.server.netty;
 
 
+import com.netty.rpc.registry.ServiceRegistry;
+import com.netty.rpc.registry.nacos.NacosRegistry;
+import com.netty.rpc.registry.zookeeper.ZKRegistry;
 import com.netty.rpc.server.Server;
-import com.netty.rpc.server.registry.ServiceRegistry;
 import com.netty.rpc.util.ServiceUtil;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,12 +33,14 @@ public class NettyServer extends Server {
 
     public NettyServer(String serverAddress, String registryAddress) {
         this.serverAddress = serverAddress;
-        this.serviceRegistry = new ServiceRegistry(registryAddress);
+        this.serviceRegistry = new ZKRegistry(registryAddress);
+//        this.serviceRegistry = new NacosRegistry(registryAddress);
     }
 
     public NettyServer(String serverAddress, String registryAddress, int coreThreadSize, int maxThreadSize) {
         this.serverAddress = serverAddress;
-        this.serviceRegistry = new ServiceRegistry(registryAddress);
+//        this.serviceRegistry = new ServiceRegistry(registryAddress);
+        this.serviceRegistry = new NacosRegistry(registryAddress);
         this.coreThreadPoolSize = coreThreadSize;
         this.maxThreadPoolSize = maxThreadSize;
     }

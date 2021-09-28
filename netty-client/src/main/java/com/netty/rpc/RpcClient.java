@@ -2,9 +2,9 @@ package com.netty.rpc;
 
 import com.netty.rpc.annotation.BRpcConsumer;
 import com.netty.rpc.client.ConnectionManager;
-import com.netty.rpc.discovery.ServiceDiscovery;
 import com.netty.rpc.proxy.ObjectProxy;
 import com.netty.rpc.proxy.RpcService;
+import com.netty.rpc.registry.ServiceDiscovery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -26,7 +26,9 @@ public class RpcClient implements ApplicationContextAware, DisposableBean {
             600L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(1000));
 
     public RpcClient(String address) {
-        this.serviceDiscovery = new ServiceDiscovery(address);
+        ConnectionManager connectionManager = ConnectionManager.getAndInitInstance(address);
+        this.serviceDiscovery = connectionManager.getServiceDiscovery();
+        this.serviceDiscovery.discoveryService();
     }
 
     @SuppressWarnings("unchecked")
@@ -53,7 +55,7 @@ public class RpcClient implements ApplicationContextAware, DisposableBean {
     }
 
     @Override
-    public void destroy() throws Exception {
+    public void destroy() {
         this.stop();
     }
 

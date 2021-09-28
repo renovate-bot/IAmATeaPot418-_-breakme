@@ -9,6 +9,7 @@ public interface Constant {
 
     String ZK_REGISTRY_PATH = "/registry";
     String ZK_DATA_PATH = ZK_REGISTRY_PATH + "/data";
-
     String ZK_NAMESPACE = "bRPC";
+
+    String NACOS_NAMESPACE_PREFIX = "bRPC.";
 }
