@@ -20,6 +20,8 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
     private volatile Channel channel;
     private RpcProtocol rpcProtocol;
 
+    private volatile boolean intentionalClose;
+
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
         super.channelRegistered(ctx);
@@ -67,9 +69,38 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
         this.rpcProtocol = rpcProtocol;
     }
 
+    /**
+     * server端超时主动关闭
+     * 触发client端重连 以此机制保持长链接
+     * 主动关闭则不进行冲链接
+     * @param ctx
+     */
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        super.channelInactive(ctx);
-        ConnectionManager.getInstance().removeHandler(rpcProtocol);
+        if (isIntentionalClose()) {
+            super.channelInactive(ctx);
+            ConnectionManager.getInstance().removeHandler(rpcProtocol);
+            return;
+        }
+        logger.info("Connection to server lose, active reconnect mechanism.");
+        ConnectionManager connectionManager = ConnectionManager.getInstance();
+        try {
+            connectionManager.connectServerNode(rpcProtocol);
+        } catch (Exception e) {
+            connectionManager.removeHandler(rpcProtocol);
+        }
+    }
+
+
+    private boolean isIntentionalClose() {
+        return intentionalClose;
+    }
+
+    /**
+     * 主动关闭时设置
+     * @param intentionalClose boolean 是否主动关闭
+     */
+    public void setIntentionalClose(boolean intentionalClose) {
+        this.intentionalClose = intentionalClose;
     }
 }

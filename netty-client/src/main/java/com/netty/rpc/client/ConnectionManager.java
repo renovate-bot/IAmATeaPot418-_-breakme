@@ -182,10 +182,9 @@ public class ConnectionManager {
                         if (channelFuture.isSuccess()) {
                             logger.info("Successfully connect to remote server, remote peer = {}", remotePeer);
                             RpcClientHandler rpcClientHandler = channelFuture.channel().pipeline().get(RpcClientHandler.class);
-                            RpcHeartBeatHandler rpcHeartBeatHandler = channelFuture.channel().pipeline().get(RpcHeartBeatHandler.class);
                             connectedServerNodes.put(rpcProtocol, rpcClientHandler);
                             rpcClientHandler.setRpcProtocol(rpcProtocol);
-                            rpcHeartBeatHandler.setRpcProtocol(rpcProtocol);
+                            rpcClientHandler.setIntentionalClose(false);
                             // 方便后续快速选择 在此记录
                             ProtocolsKeeper.addZkChild(rpcProtocol);
                             signalAvailableHandler();
@@ -238,9 +237,14 @@ public class ConnectionManager {
         }
     }
 
+    /**
+     * 关闭 & 移除 连接
+     * @param rpcProtocol peer server 信息
+     */
     private void removeAndCloseHandler(RpcProtocol rpcProtocol) {
         RpcClientHandler handler = connectedServerNodes.get(rpcProtocol);
         if (handler != null) {
+            handler.setIntentionalClose(true);
             handler.close();
         }
         connectedServerNodes.remove(rpcProtocol);
@@ -252,7 +256,7 @@ public class ConnectionManager {
         rpcProtocolSet.remove(rpcProtocol);
         connectedServerNodes.remove(rpcProtocol);
         ProtocolsKeeper.removeZkChild(rpcProtocol);
-        logger.info("Remove one connection, host: {}, port: {}", rpcProtocol.getHost(), rpcProtocol.getPort());
+        logger.info("Remove one connection, host: {}, port: {}.", rpcProtocol.getHost(), rpcProtocol.getPort());
     }
 
     public void stop() {
