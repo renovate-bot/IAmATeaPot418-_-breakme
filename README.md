@@ -8,7 +8,7 @@
 4. 支持zookeeper或nacos做服务注册中心。
 5. 整合spring注解，可通过注解便捷使用，此外可在注解中配置server端业务线程池核心线程数及最大线程数。
 
-## Getting started
+## Getting start
 
 - 部署zookeeper推荐使用docker
 
