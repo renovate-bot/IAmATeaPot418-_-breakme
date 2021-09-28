@@ -1,14 +1,12 @@
-package com.netty.rpc.client;
+package com.netty.rpc.connection;
 
 import com.netty.rpc.observation.Observer;
-import com.netty.rpc.observation.Subject;
 import com.netty.rpc.registry.ServiceDiscovery;
 import com.netty.rpc.registry.nacos.NacosDiscovery;
 import com.netty.rpc.registry.zookeeper.ZKDiscovery;
 import com.netty.rpc.route.ProtocolsKeeper;
 import com.netty.rpc.handler.RpcClientHandler;
 import com.netty.rpc.handler.RpcClientInitializer;
-import com.netty.rpc.handler.RpcHeartBeatHandler;
 import com.netty.rpc.protocol.RpcProtocol;
 import com.netty.rpc.protocol.RpcServiceInfo;
 import com.netty.rpc.route.RpcLoadBalance;
@@ -62,8 +60,8 @@ public class ConnectionManager implements Observer {
     }
 
     /**
-     * zk 有根据事件进行更新的方法
-     * nacos 没有
+     * zk 根据事件进行更新
+     * nacos 没有事件类型更新
      * @param rpcProtocols rpc server信息
      * @param type 更新类型（nacos更新类型以及zk全量更新为null）
      */

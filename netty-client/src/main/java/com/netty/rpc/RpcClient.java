@@ -1,7 +1,7 @@
 package com.netty.rpc;
 
 import com.netty.rpc.annotation.BRpcConsumer;
-import com.netty.rpc.client.ConnectionManager;
+import com.netty.rpc.connection.ConnectionManager;
 import com.netty.rpc.proxy.ObjectProxy;
 import com.netty.rpc.proxy.RpcService;
 import com.netty.rpc.registry.ServiceDiscovery;

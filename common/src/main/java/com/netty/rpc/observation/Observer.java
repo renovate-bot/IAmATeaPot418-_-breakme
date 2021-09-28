@@ -10,6 +10,11 @@ import java.util.List;
  */
 public interface Observer {
 
+    /**
+     * 观察者进行服务更新
+     * @param rpcProtocols rpc server信息
+     * @param type zk 事件类型
+     */
     void update(List<RpcProtocol> rpcProtocols, PathChildrenCacheEvent.Type type);
 
 }

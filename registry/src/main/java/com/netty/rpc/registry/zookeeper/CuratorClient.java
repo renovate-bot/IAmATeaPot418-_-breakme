@@ -1,5 +1,6 @@
-package com.netty.rpc.zookeeper;
+package com.netty.rpc.registry.zookeeper;
 
+import com.netty.rpc.registry.Constant;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;

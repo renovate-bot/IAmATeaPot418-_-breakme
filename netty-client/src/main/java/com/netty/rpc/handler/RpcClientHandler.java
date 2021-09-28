@@ -1,6 +1,6 @@
 package com.netty.rpc.handler;
 
-import com.netty.rpc.client.ConnectionManager;
+import com.netty.rpc.connection.ConnectionManager;
 import com.netty.rpc.codec.RpcRequest;
 import com.netty.rpc.codec.RpcResponse;
 import com.netty.rpc.future.RpcFuture;
@@ -31,19 +31,19 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
     @Override
     public void channelRead0(ChannelHandlerContext ctx, RpcResponse response) {
         String requestId = response.getRequestId();
-        logger.debug("Receive response: " + requestId);
+        logger.debug("Receive response: {}.", requestId);
         RpcFuture rpcFuture = pendingRPC.get(requestId);
         if (rpcFuture != null) {
             pendingRPC.remove(requestId);
             rpcFuture.done(response);
         } else {
-            logger.warn("Can not get pending response for request id: " + requestId);
+            logger.warn("Can not get pending response for request id: {}.", requestId);
         }
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        logger.error("Client caught exception: " + cause.getMessage());
+        logger.error("Client caught exception: {}.", cause.getMessage());
         ctx.close();
     }
 
@@ -51,16 +51,21 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
         channel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
     }
 
+    /**
+     * 发送请求
+     * @param request RpcRequest
+     * @return result future
+     */
     public RpcFuture sendRequest(RpcRequest request) {
         RpcFuture rpcFuture = new RpcFuture(request);
         pendingRPC.put(request.getRequestId(), rpcFuture);
         try {
             ChannelFuture channelFuture = channel.writeAndFlush(request).sync();
             if (!channelFuture.isSuccess()) {
-                logger.error("Send request {} error", request.getRequestId());
+                logger.error("Send request {} error.", request.getRequestId());
             }
         } catch (InterruptedException e) {
-            logger.error("Send request exception: " + e.getMessage());
+            logger.error("Send request exception: {}.", e.getMessage());
         }
         return rpcFuture;
     }
@@ -72,7 +77,7 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
     /**
      * server端超时主动关闭
      * 触发client端重连 以此机制保持长链接
-     * 主动关闭则不进行冲链接
+     * 主动关闭则不进行重连接
      * @param ctx
      */
     @Override
