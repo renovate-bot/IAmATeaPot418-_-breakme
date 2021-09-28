@@ -17,7 +17,6 @@ public class RpcHeartBeatHandler extends ChannelInboundHandlerAdapter {
 
     private SocketAddress remotePeer;
     private volatile Channel channel;
-    private RpcProtocol rpcProtocol;
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -69,24 +68,4 @@ public class RpcHeartBeatHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    /**
-     * server端超时主动关闭
-     * 触发client端重连 以此机制保持长链接
-     *
-     * @param ctx
-     * @throws Exception
-     */
-    @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        ConnectionManager connectionManager = ConnectionManager.getInstance();
-        try {
-            connectionManager.connectServerNode(rpcProtocol);
-        } catch (Exception e) {
-            connectionManager.removeHandler(rpcProtocol);
-        }
-    }
-
-    public void setRpcProtocol(RpcProtocol rpcProtocol) {
-        this.rpcProtocol = rpcProtocol;
-    }
 }
