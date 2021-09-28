@@ -13,6 +13,7 @@
         <module>netty-server</module>
         <module>test</module>
         <module>netty-client</module>
+        <module>registry</module>
     </modules>
 
     <properties>
@@ -26,6 +27,7 @@
         <objenesis.version>2.1</objenesis.version>
         <jackson.version>2.12.1</jackson.version>
         <lombok.version>1.18.4</lombok.version>
+        <nacos.version>1.4.1</nacos.version>
     </properties>
 
     <dependencies>
@@ -115,6 +117,13 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>com.alibaba.nacos</groupId>
+            <artifactId>nacos-client</artifactId>
+            <version>${nacos.version}</version>
         </dependency>
 
     </dependencies>

@@ -16,11 +16,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @NoArgsConstructor
 public class RpcServer extends NettyServer implements ApplicationContextAware, InitializingBean, DisposableBean  {
 
-    public RpcServer(String serverAddress, String registryAddress) {
+    public RpcServer(String serverAddress, String registryAddress) throws Exception {
         super(serverAddress, registryAddress);
     }
 
-    public RpcServer(String serverAddress, String registryAddress, int coreThreadPoolSize, int maxThreadPoolSize) {
+    public RpcServer(String serverAddress, String registryAddress, int coreThreadPoolSize, int maxThreadPoolSize) throws Exception {
         super(serverAddress, registryAddress, coreThreadPoolSize, maxThreadPoolSize);
     }
 
