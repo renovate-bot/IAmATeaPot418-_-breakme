@@ -1,7 +1,5 @@
 package com.netty.rpc.registry;
 
-import com.netty.rpc.observation.Subject;
-
 import java.util.Map;
 
 public interface ServiceRegistry {

@@ -1,8 +1,7 @@
 package com.netty.rpc.connection;
 
-import com.netty.rpc.observation.Observer;
+import com.netty.rpc.registry.observation.Observer;
 import com.netty.rpc.registry.ServiceDiscovery;
-import com.netty.rpc.registry.nacos.NacosDiscovery;
 import com.netty.rpc.registry.zookeeper.ZKDiscovery;
 import com.netty.rpc.route.ProtocolsKeeper;
 import com.netty.rpc.handler.RpcClientHandler;
