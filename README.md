@@ -23,8 +23,8 @@
 
 - rpc测试 
 
-1. com.application.test.spring.server.ServerBootstrap.java  服务端启动
-2. com.application.test.spring.client.ClientTest.java       客户端启动 并rpc调用HelloService.java
+1. com.application.test.spring.server.ServerTest.java  服务端启动
+2. com.application.test.spring.client.ClientTest.java  客户端启动 并rpc调用HelloService.java
 
 
 
