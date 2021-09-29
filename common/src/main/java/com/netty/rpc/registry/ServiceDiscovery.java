@@ -1,6 +1,6 @@
 package com.netty.rpc.registry;
 
-import com.netty.rpc.observation.Subject;
+import com.netty.rpc.registry.observation.Subject;
 
 public interface ServiceDiscovery extends Subject {
 

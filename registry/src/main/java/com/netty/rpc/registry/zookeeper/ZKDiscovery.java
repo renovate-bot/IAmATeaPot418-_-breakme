@@ -1,6 +1,6 @@
 package com.netty.rpc.registry.zookeeper;
 
-import com.netty.rpc.observation.Observer;
+import com.netty.rpc.registry.observation.Observer;
 import com.netty.rpc.protocol.RpcProtocol;
 import com.netty.rpc.registry.ServiceDiscovery;
 import com.netty.rpc.registry.Constant;

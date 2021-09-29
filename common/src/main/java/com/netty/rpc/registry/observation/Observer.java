@@ -1,4 +1,4 @@
-package com.netty.rpc.observation;
+package com.netty.rpc.registry.observation;
 
 import com.netty.rpc.protocol.RpcProtocol;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;

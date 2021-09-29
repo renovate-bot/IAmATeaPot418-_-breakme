@@ -119,7 +119,7 @@
             <version>${lombok.version}</version>
         </dependency>
 
-
+        <!-- nacos -->
         <dependency>
             <groupId>com.alibaba.nacos</groupId>
             <artifactId>nacos-client</artifactId>

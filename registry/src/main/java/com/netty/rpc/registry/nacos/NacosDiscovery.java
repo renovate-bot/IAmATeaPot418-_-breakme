@@ -6,7 +6,7 @@ import com.alibaba.nacos.api.naming.listener.Event;
 import com.alibaba.nacos.api.naming.listener.EventListener;
 import com.alibaba.nacos.api.naming.listener.NamingEvent;
 import com.alibaba.nacos.api.naming.pojo.Instance;
-import com.netty.rpc.observation.Observer;
+import com.netty.rpc.registry.observation.Observer;
 import com.netty.rpc.protocol.RpcProtocol;
 import com.netty.rpc.registry.ServiceDiscovery;
 import com.netty.rpc.registry.Constant;

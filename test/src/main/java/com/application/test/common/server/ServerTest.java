@@ -4,7 +4,7 @@ import com.application.test.service.HelloService;
 import com.application.test.service.HelloServiceImpl;
 import com.netty.rpc.server.netty.NettyServer;
 
-public class ServerBootstrap {
+public class ServerTest {
 
     public static void main(String[] args) throws Exception {
 //        String serverAddress = "127.0.0.1:18877";
