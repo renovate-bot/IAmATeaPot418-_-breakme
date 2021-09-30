@@ -5,6 +5,7 @@ import com.netty.rpc.connection.ConnectionManager;
 import com.netty.rpc.proxy.ObjectProxy;
 import com.netty.rpc.proxy.RpcService;
 import com.netty.rpc.registry.ServiceDiscovery;
+import com.netty.rpc.route.RpcLoadBalance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -32,6 +33,15 @@ public class RpcClient implements ApplicationContextAware, DisposableBean {
     }
 
     @SuppressWarnings("unchecked")
+    public static <T, P> T createService(Class<T> interfaceClass, String version, RpcLoadBalance loadBalance) {
+        return (T) Proxy.newProxyInstance(
+                interfaceClass.getClassLoader(),
+                new Class<?>[]{interfaceClass},
+                new ObjectProxy<T, P>(interfaceClass, version, loadBalance)
+        );
+    }
+
+    @SuppressWarnings("unchecked")
     public static <T, P> T createService(Class<T> interfaceClass, String version) {
         return (T) Proxy.newProxyInstance(
                 interfaceClass.getClassLoader(),
@@ -39,6 +49,7 @@ public class RpcClient implements ApplicationContextAware, DisposableBean {
                 new ObjectProxy<T, P>(interfaceClass, version)
         );
     }
+
 
     public static <T, P> RpcService createAsyncService(Class<T> interfaceClass, String version) {
         return new ObjectProxy<T, P>(interfaceClass, version);
@@ -70,11 +81,12 @@ public class RpcClient implements ApplicationContextAware, DisposableBean {
                     BRpcConsumer rpcAutowired = field.getAnnotation(BRpcConsumer.class);
                     if (rpcAutowired != null) {
                         String version = rpcAutowired.version();
+                        RpcLoadBalance loadBalance = (RpcLoadBalance) rpcAutowired.loadBalanceStrategy().newInstance();
                         field.setAccessible(true);
-                        field.set(bean, createService(field.getType(), version));
+                        field.set(bean, createService(field.getType(), version, loadBalance));
                     }
                 }
-            } catch (IllegalAccessException e) {
+            } catch (Exception e) {
                 logger.error(e.toString());
             }
         }

@@ -4,16 +4,18 @@ package com.netty.rpc.route.impl;
 import com.netty.rpc.protocol.RpcProtocol;
 import com.netty.rpc.route.ProtocolsKeeper;
 import com.netty.rpc.route.RpcLoadBalance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 轮询
  */
-public class RpcLoadBalanceRoundRobin implements RpcLoadBalance {
+public class RpcLoadBalanceRoundRobin extends RpcLoadBalance {
     private AtomicInteger roundRobin;
+    private static final Logger logger = LoggerFactory.getLogger(RpcLoadBalanceRoundRobin.class);
 
     public RpcLoadBalanceRoundRobin() {
         roundRobin = new AtomicInteger(0);
