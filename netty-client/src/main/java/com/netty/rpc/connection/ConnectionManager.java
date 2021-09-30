@@ -44,8 +44,6 @@ public class ConnectionManager implements Observer {
     private ReentrantLock lock = new ReentrantLock();
     private Condition connected = lock.newCondition();
     private long waitTimeout = 5000L;
-    //todo 通过注解动态配置 link: RpcClient.setApplicationContext
-    private RpcLoadBalance loadBalance = new RpcLoadBalanceRoundRobin();
     private volatile boolean isRunning = true;
 
     private ServiceDiscovery serviceDiscovery;
@@ -272,7 +270,7 @@ public class ConnectionManager implements Observer {
         }
     }
 
-    public RpcClientHandler chooseHandler(String serviceKey) throws Exception {
+    public RpcClientHandler chooseHandler(String serviceKey, RpcLoadBalance loadBalance) throws Exception {
         int size = connectedServerNodes.values().size();
         while (isRunning && size <= 0) {
             try {

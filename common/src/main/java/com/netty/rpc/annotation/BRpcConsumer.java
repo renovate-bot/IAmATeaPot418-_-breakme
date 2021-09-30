@@ -1,5 +1,6 @@
 package com.netty.rpc.annotation;
 
+import com.netty.rpc.route.impl.RpcLoadBalanceRoundRobin;
 import org.springframework.stereotype.Component;
 
 import java.lang.annotation.ElementType;
@@ -15,4 +16,7 @@ import java.lang.annotation.Target;
 @Component
 public @interface BRpcConsumer {
     String version() default "";
+
+    Class<?> loadBalanceStrategy() default RpcLoadBalanceRoundRobin.class;
+
 }

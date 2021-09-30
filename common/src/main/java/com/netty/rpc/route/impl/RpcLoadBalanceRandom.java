@@ -3,17 +3,19 @@ package com.netty.rpc.route.impl;
 import com.netty.rpc.protocol.RpcProtocol;
 import com.netty.rpc.route.ProtocolsKeeper;
 import com.netty.rpc.route.RpcLoadBalance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 /**
  * 随机
  */
-public class RpcLoadBalanceRandom implements RpcLoadBalance {
+public class RpcLoadBalanceRandom extends RpcLoadBalance {
 
     private Random random;
+    private static final Logger logger = LoggerFactory.getLogger(RpcLoadBalanceRandom.class);
 
     public RpcLoadBalanceRandom() {
         this.random = new Random();
