@@ -15,8 +15,16 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Component
 public @interface BRpcConsumer {
+
+    /**
+     * 版本号
+     */
     String version() default "";
 
+    /**
+     * 负载均衡策略设置
+     * 可选：
+     *      RpcLoadBalanceRoundRobin.class(default) / RpcLoadBalanceRandom.class / RpcLoadBalanceConsistentHash.class
+     */
     Class<?> loadBalanceStrategy() default RpcLoadBalanceRoundRobin.class;
-
 }

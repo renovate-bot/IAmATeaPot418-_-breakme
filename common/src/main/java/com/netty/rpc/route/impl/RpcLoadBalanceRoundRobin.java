@@ -42,6 +42,7 @@ public class RpcLoadBalanceRoundRobin extends RpcLoadBalance {
 
     @Override
     public RpcProtocol route(String serviceKey) throws Exception {
+        logger.debug("RpcLoadBalanceRoundRobin is routing for {}.", serviceKey);
         List<RpcProtocol> addressList = ProtocolsKeeper.getProtocolsFromServiceKey(serviceKey);
         if (addressList != null && addressList.size() > 0) {
             return doRoute(addressList);
