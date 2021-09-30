@@ -16,13 +16,13 @@ public class RpcLoadBalanceConsistentHash extends RpcLoadBalance {
     private static final Logger logger = LoggerFactory.getLogger(RpcLoadBalanceConsistentHash.class);
 
     private RpcProtocol doRoute(String serviceKey, List<RpcProtocol> addressList) {
-
         int index = Hashing.consistentHash(serviceKey.hashCode(), addressList.size());
         return addressList.get(index);
     }
 
     @Override
     public RpcProtocol route(String serviceKey) throws Exception {
+        logger.debug("RpcLoadBalanceConsistentHash is routing for {}.", serviceKey);
         List<RpcProtocol> addressList = ProtocolsKeeper.getProtocolsFromServiceKey(serviceKey);
         if (addressList != null && addressList.size() > 0) {
             return doRoute(serviceKey, addressList);

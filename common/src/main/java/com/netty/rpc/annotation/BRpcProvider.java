@@ -14,8 +14,12 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Component
 public @interface BRpcProvider {
+
     Class<?> value();
 
+    /**
+     * 版本号
+     */
     String version() default "";
 
     /**

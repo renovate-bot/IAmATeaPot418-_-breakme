@@ -7,15 +7,14 @@ public abstract class RpcLoadBalance {
 
     /**
      * 以serviceKey 做负载均衡
-     * @param serviceKey
-     * @return
-     * @throws Exception
+     * @param serviceKey serviceName & version
+     * @return RpcProtocol
      */
     public abstract RpcProtocol route(String serviceKey) throws Exception;
 
     /**
      * 负载均衡策略设置缺省默认返回轮询策略
-     * @return
+     * @return RpcProtocol
      */
     public static RpcLoadBalance getDefaultInstance() {
         return new RpcLoadBalanceRoundRobin();

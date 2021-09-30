@@ -28,6 +28,7 @@ public class RpcLoadBalanceRandom extends RpcLoadBalance {
 
     @Override
     public RpcProtocol route(String serviceKey) throws Exception {
+        logger.debug("RpcLoadBalanceRandom is routing for {}.", serviceKey);
         List<RpcProtocol> addressList = ProtocolsKeeper.getProtocolsFromServiceKey(serviceKey);
         if (addressList != null && addressList.size() > 0) {
             return doRoute(addressList);
