@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * 用于route的快速选择
@@ -20,7 +21,7 @@ public class ProtocolsKeeper {
 
     @Data
     private static class RpcProtocolsContainer {
-        private List<RpcProtocol> rpcProtocols = new LinkedList<>();
+        private List<RpcProtocol> rpcProtocols = new CopyOnWriteArrayList<>();
         private Map<RpcProtocol, Integer> index2Protocols = new HashMap<>();
     }
 
