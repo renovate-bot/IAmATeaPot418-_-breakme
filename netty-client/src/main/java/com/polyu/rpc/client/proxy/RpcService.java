@@ -1,6 +1,6 @@
 package com.polyu.rpc.client.proxy;
 
-import com.polyu.rpc.client.future.RpcFuture;
+import com.polyu.rpc.client.result.future.RpcFuture;
 
 public interface RpcService<T, P, FN extends SerializableFunction<T>> {
     RpcFuture call(String funcName, Object... args) throws Exception;

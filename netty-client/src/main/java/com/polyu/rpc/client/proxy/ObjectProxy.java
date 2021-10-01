@@ -2,7 +2,7 @@ package com.polyu.rpc.client.proxy;
 
 import com.polyu.rpc.client.connection.ConnectionManager;
 import com.polyu.rpc.client.handler.RpcClientHandler;
-import com.polyu.rpc.client.future.RpcFuture;
+import com.polyu.rpc.client.result.future.RpcFuture;
 import com.polyu.rpc.codec.RpcRequest;
 import com.polyu.rpc.route.RpcLoadBalance;
 import com.polyu.rpc.util.ServiceUtil;
