@@ -1,6 +1,7 @@
 package com.polyu.rpc.server;
 
 import com.polyu.rpc.annotation.BRpcProvider;
+import com.polyu.rpc.registry.ServiceRegistry;
 import com.polyu.rpc.server.netty.NettyServer;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.BeansException;
@@ -16,12 +17,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @NoArgsConstructor
 public class RpcServer extends NettyServer implements ApplicationContextAware, InitializingBean, DisposableBean  {
 
-    public RpcServer(String serverAddress, String registryAddress) throws Exception {
-        super(serverAddress, registryAddress);
+    public RpcServer(String serverAddress, ServiceRegistry serviceRegistry) throws Exception {
+        super(serverAddress, serviceRegistry);
     }
 
     public RpcServer(String serverAddress, String registryAddress, int coreThreadPoolSize, int maxThreadPoolSize) throws Exception {
         super(serverAddress, registryAddress, coreThreadPoolSize, maxThreadPoolSize);
+    }
+
+    public RpcServer(String serverAddress, ServiceRegistry serviceRegistry, int coreThreadPoolSize, int maxThreadPoolSize) {
+        super(serverAddress, serviceRegistry, coreThreadPoolSize, maxThreadPoolSize);
     }
 
     @Override

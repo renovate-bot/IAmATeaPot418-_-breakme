@@ -4,6 +4,8 @@ import com.application.test.service.HelloService;
 import com.application.test.service.HelloService2;
 import com.application.test.service.HelloServiceImpl;
 import com.application.test.service.HelloServiceImpl2;
+import com.polyu.rpc.registry.ServiceRegistry;
+import com.polyu.rpc.registry.zookeeper.ZKRegistry;
 import com.polyu.rpc.server.netty.NettyServer;
 
 public class ServerTest {
@@ -18,7 +20,8 @@ public class ServerTest {
         String registryAddress = "127.0.0.1:2181";
         // nacos
 //        String registryAddress = "127.0.0.1:8848";
-        NettyServer rpcServer = new NettyServer(serverAddress, registryAddress);
+        ServiceRegistry serviceRegistry = new ZKRegistry(registryAddress);
+        NettyServer rpcServer = new NettyServer(serverAddress, serviceRegistry);
         HelloService helloService1 = new HelloServiceImpl();
         HelloServiceImpl2  helloService2 = new HelloServiceImpl2();
         rpcServer.addService(HelloService.class.getName(), "1.0", helloService1);
