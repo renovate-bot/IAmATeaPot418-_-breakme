@@ -1,7 +1,7 @@
 package com.application.test.common.client;
 
 import com.application.test.service.HelloService;
-import com.netty.rpc.RpcClient;
+import com.polyu.rpc.client.RpcClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,8 +1,5 @@
 package com.application.test.spring.client;
 
-import com.application.test.service.HelloService;
-import com.netty.rpc.annotation.BRpcConsumer;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

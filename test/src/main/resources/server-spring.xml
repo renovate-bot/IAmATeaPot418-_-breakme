@@ -11,7 +11,7 @@
 
     <context:component-scan base-package="com.application.test.service"/>
 
-    <bean id="rpcServer" class="com.netty.rpc.server.RpcServer">
+    <bean id="rpcServer" class="com.polyu.rpc.server.RpcServer">
         <constructor-arg name="serverAddress" value="${bRPC.server.address}"/>
         <constructor-arg name="registryAddress" value="${bRPC.registry.address}"/>
     </bean>

@@ -4,7 +4,7 @@ import com.application.test.service.HelloService;
 import com.application.test.service.HelloService2;
 import com.application.test.service.HelloServiceImpl;
 import com.application.test.service.HelloServiceImpl2;
-import com.netty.rpc.server.netty.NettyServer;
+import com.polyu.rpc.server.netty.NettyServer;
 
 public class ServerTest {
 
