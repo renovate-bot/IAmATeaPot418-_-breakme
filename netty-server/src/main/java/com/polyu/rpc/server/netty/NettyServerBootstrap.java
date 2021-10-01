@@ -49,7 +49,7 @@ public class NettyServerBootstrap implements Runnable {
         );
     }
 
-    public NettyServerBootstrap(
+    NettyServerBootstrap(
             String serverName,
             String serverAddress,
             Map<String, Object> serviceKey2BeanMap,
