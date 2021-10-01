@@ -1,22 +1,20 @@
 package com.polyu.rpc.client.handler;
 
 import com.polyu.rpc.client.connection.ConnectionManager;
+import com.polyu.rpc.client.result.PendingRpcHolder;
 import com.polyu.rpc.codec.RpcRequest;
 import com.polyu.rpc.codec.RpcResponse;
 import com.polyu.rpc.protocol.RpcProtocol;
-import com.polyu.rpc.client.future.RpcFuture;
+import com.polyu.rpc.client.result.future.RpcFuture;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.ConcurrentHashMap;
-
 
 public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
     private static final Logger logger = LoggerFactory.getLogger(RpcClientHandler.class);
 
-    private ConcurrentHashMap<String, RpcFuture> pendingRPC = new ConcurrentHashMap<>();
     private volatile Channel channel;
     private RpcProtocol rpcProtocol;
 
@@ -32,9 +30,9 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
     public void channelRead0(ChannelHandlerContext ctx, RpcResponse response) {
         String requestId = response.getRequestId();
         logger.debug("Receive response: {}.", requestId);
-        RpcFuture rpcFuture = pendingRPC.get(requestId);
+        RpcFuture rpcFuture = PendingRpcHolder.getPendingRPC().get(requestId);
         if (rpcFuture != null) {
-            pendingRPC.remove(requestId);
+            PendingRpcHolder.getPendingRPC().remove(requestId);
             rpcFuture.done(response);
         } else {
             logger.warn("Can not get pending response for request id: {}.", requestId);
@@ -58,7 +56,7 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
      */
     public RpcFuture sendRequest(RpcRequest request) {
         RpcFuture rpcFuture = new RpcFuture(request);
-        pendingRPC.put(request.getRequestId(), rpcFuture);
+        PendingRpcHolder.getPendingRPC().put(request.getRequestId(), rpcFuture);
         try {
             ChannelFuture channelFuture = channel.writeAndFlush(request).sync();
             if (!channelFuture.isSuccess()) {

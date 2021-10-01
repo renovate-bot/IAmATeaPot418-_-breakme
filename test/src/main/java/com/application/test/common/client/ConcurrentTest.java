@@ -18,7 +18,6 @@ public class ConcurrentTest {
 
     public static void main(String[] args) throws Exception {
         new RpcClient(new ZKDiscovery("127.0.0.1:2181"));
-//        new RpcClient("127.0.0.1:2181");
         helloService = RpcClient.createService(HelloService.class, "1.0");
         for (int i = 0; i < 50; i++) {
             String res = helloService.hello("Yan Yibin");

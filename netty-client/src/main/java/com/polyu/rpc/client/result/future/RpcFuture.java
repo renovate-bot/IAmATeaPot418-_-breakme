@@ -1,4 +1,4 @@
-package com.polyu.rpc.client.future;
+package com.polyu.rpc.client.result.future;
 
 import com.polyu.rpc.client.RpcClient;
 import com.polyu.rpc.codec.RpcRequest;

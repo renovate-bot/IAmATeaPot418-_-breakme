@@ -1,4 +1,4 @@
-package com.polyu.rpc.client.future;
+package com.polyu.rpc.client.result.future;
 
 
 public interface AsyncRPCCallback {
