@@ -24,6 +24,9 @@ public class RpcClient implements ApplicationContextAware, DisposableBean {
     private static final Logger logger = LoggerFactory.getLogger(RpcClient.class);
 
     private ServiceDiscovery serviceDiscovery;
+    /**
+     * 异步请求 线程池
+     */
     private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(16, 16,
             600L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(1000));
 
