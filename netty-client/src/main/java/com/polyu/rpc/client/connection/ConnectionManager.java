@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
+import java.rmi.registry.Registry;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.Condition;
@@ -77,12 +78,11 @@ public class ConnectionManager implements Observer {
     private static class SingletonHolder {
         private static volatile ConnectionManager instance;
 
-        static ConnectionManager getInstance(String hostAddress) {
+        static ConnectionManager getInstance(ServiceDiscovery discovery) {
             if (instance == null) {
                 synchronized (SingletonHolder.class) {
                     if (instance == null) {
-//                        instance = new ConnectionManager(new NacosDiscovery(hostAddress));
-                        instance = new ConnectionManager(new ZKDiscovery(hostAddress));
+                        instance = new ConnectionManager(discovery);
                         // 注册观察事件
                         instance.getServiceDiscovery().registerObserver(instance);
                     }
@@ -95,11 +95,10 @@ public class ConnectionManager implements Observer {
 
     /**
      * 获取并初始化实例
-     * @param hostAddress
      * @return
      */
-    public static ConnectionManager getAndInitInstance(String hostAddress) {
-        return SingletonHolder.getInstance(hostAddress);
+    public static ConnectionManager getAndInitInstance(ServiceDiscovery discovery) {
+        return SingletonHolder.getInstance(discovery);
     }
 
     /**
