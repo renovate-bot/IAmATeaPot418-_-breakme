@@ -101,8 +101,7 @@ public class ObjectProxy<T, P> implements InvocationHandler, RpcService<T, P, Se
     }
 
     private Class<?> getClassType(Object obj) {
-        Class<?> classType = obj.getClass();
-        return classType;
+        return obj.getClass();
     }
 
 }

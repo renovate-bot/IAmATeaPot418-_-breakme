@@ -2,7 +2,6 @@ package com.polyu.rpc.client.connection;
 
 import com.polyu.rpc.registry.observation.Observer;
 import com.polyu.rpc.registry.ServiceDiscovery;
-import com.polyu.rpc.registry.zookeeper.ZKDiscovery;
 import com.polyu.rpc.route.ProtocolsKeeper;
 import com.polyu.rpc.protocol.RpcProtocol;
 import com.polyu.rpc.protocol.RpcServiceInfo;
@@ -24,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
-import java.rmi.registry.Registry;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.Condition;
@@ -258,11 +256,11 @@ public class ConnectionManager implements Observer {
         }
     }
 
-    private boolean waitingForHandler() throws InterruptedException {
+    private void waitingForHandler() throws InterruptedException {
         lock.lock();
         try {
-            logger.warn("Waiting for available service");
-            return connected.await(this.waitTimeout, TimeUnit.MILLISECONDS);
+            logger.warn("Waiting for available service.");
+            connected.await(this.waitTimeout, TimeUnit.MILLISECONDS);
         } finally {
             lock.unlock();
         }
