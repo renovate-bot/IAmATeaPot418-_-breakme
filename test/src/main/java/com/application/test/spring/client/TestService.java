@@ -2,10 +2,8 @@ package com.application.test.spring.client;
 
 import com.application.test.service.HelloService;
 import com.application.test.service.HelloService2;
-import com.netty.rpc.annotation.BRpcConsumer;
-import com.netty.rpc.route.impl.RpcLoadBalanceConsistentHash;
-import com.netty.rpc.route.impl.RpcLoadBalanceRandom;
-import com.netty.rpc.route.impl.RpcLoadBalanceRoundRobin;
+import com.polyu.rpc.annotation.BRpcConsumer;
+import com.polyu.rpc.route.impl.RpcLoadBalanceRandom;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class TestService {
