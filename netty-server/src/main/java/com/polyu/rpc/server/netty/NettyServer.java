@@ -35,14 +35,6 @@ public class NettyServer extends Server {
         this.serviceRegistry = serviceRegistry;
     }
 
-    public NettyServer(String serverAddress, String registryAddress, int coreThreadSize, int maxThreadSize) {
-        this.serverAddress = serverAddress;
-        this.serviceRegistry = new ZKRegistry(registryAddress);
-//        this.serviceRegistry = new NacosRegistry(registryAddress);
-        this.coreThreadPoolSize = coreThreadSize;
-        this.maxThreadPoolSize = maxThreadSize;
-    }
-
     public NettyServer(String serverAddress, ServiceRegistry serviceRegistry, int coreThreadPoolSize, int maxThreadPoolSize) {
        this.serverAddress = serverAddress;
        this.serviceRegistry = serviceRegistry;

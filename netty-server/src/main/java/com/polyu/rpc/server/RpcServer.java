@@ -17,12 +17,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @NoArgsConstructor
 public class RpcServer extends NettyServer implements ApplicationContextAware, InitializingBean, DisposableBean  {
 
-    public RpcServer(String serverAddress, ServiceRegistry serviceRegistry) throws Exception {
+    public RpcServer(String serverAddress, ServiceRegistry serviceRegistry) {
         super(serverAddress, serviceRegistry);
-    }
-
-    public RpcServer(String serverAddress, String registryAddress, int coreThreadPoolSize, int maxThreadPoolSize) throws Exception {
-        super(serverAddress, registryAddress, coreThreadPoolSize, maxThreadPoolSize);
     }
 
     public RpcServer(String serverAddress, ServiceRegistry serviceRegistry, int coreThreadPoolSize, int maxThreadPoolSize) {
@@ -33,21 +29,19 @@ public class RpcServer extends NettyServer implements ApplicationContextAware, I
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         Map<String, Object> beansMap = applicationContext.getBeansWithAnnotation(BRpcProvider.class);
         AtomicBoolean threadPoolSetting = new AtomicBoolean(false);
-        if (Objects.nonNull(beansMap)) {
-            beansMap.forEach((key, value) -> {
-                BRpcProvider annotation = value.getClass().getAnnotation(BRpcProvider.class);
-                String serviceName = annotation.value().getName();
-                String version = annotation.version();
-                int coreThreadPoolSize = annotation.coreThreadPoolSize();
-                int maxThreadPoolSize = annotation.maxThreadPoolSize();
-                super.addService(serviceName, version, value);
-                if (maxThreadPoolSize >= coreThreadPoolSize && !threadPoolSetting.get()) {
-                    threadPoolSetting.set(true);
-                    super.setCoreThreadPoolSize(coreThreadPoolSize);
-                    super.setMaxThreadPoolSize(maxThreadPoolSize);
-                }
-            });
-        }
+        beansMap.forEach((key, value) -> {
+            BRpcProvider annotation = value.getClass().getAnnotation(BRpcProvider.class);
+            String serviceName = annotation.value().getName();
+            String version = annotation.version();
+            int coreThreadPoolSize = annotation.coreThreadPoolSize();
+            int maxThreadPoolSize = annotation.maxThreadPoolSize();
+            super.addService(serviceName, version, value);
+            if (maxThreadPoolSize >= coreThreadPoolSize && !threadPoolSetting.get()) {
+                threadPoolSetting.set(true);
+                super.setCoreThreadPoolSize(coreThreadPoolSize);
+                super.setMaxThreadPoolSize(maxThreadPoolSize);
+            }
+        });
     }
 
     @Override
