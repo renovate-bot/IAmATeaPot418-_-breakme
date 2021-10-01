@@ -30,10 +30,9 @@ public class NettyServer extends Server {
     private ServiceRegistry serviceRegistry;
     private Map<String, Object> serviceKey2BeanMap = new HashMap<>();
 
-    public NettyServer(String serverAddress, String registryAddress) {
+    public NettyServer(String serverAddress, ServiceRegistry serviceRegistry) {
         this.serverAddress = serverAddress;
-        this.serviceRegistry = new ZKRegistry(registryAddress);
-//        this.serviceRegistry = new NacosRegistry(registryAddress);
+        this.serviceRegistry = serviceRegistry;
     }
 
     public NettyServer(String serverAddress, String registryAddress, int coreThreadSize, int maxThreadSize) {
@@ -42,6 +41,13 @@ public class NettyServer extends Server {
 //        this.serviceRegistry = new NacosRegistry(registryAddress);
         this.coreThreadPoolSize = coreThreadSize;
         this.maxThreadPoolSize = maxThreadSize;
+    }
+
+    public NettyServer(String serverAddress, ServiceRegistry serviceRegistry, int coreThreadPoolSize, int maxThreadPoolSize) {
+       this.serverAddress = serverAddress;
+       this.serviceRegistry = serviceRegistry;
+       this.coreThreadPoolSize = coreThreadPoolSize;
+       this.maxThreadPoolSize = maxThreadPoolSize;
     }
 
     /**
