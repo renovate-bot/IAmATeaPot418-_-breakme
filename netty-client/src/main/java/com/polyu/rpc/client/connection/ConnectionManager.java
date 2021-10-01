@@ -31,6 +31,11 @@ import java.util.concurrent.locks.ReentrantLock;
 public class ConnectionManager implements Observer {
     private static final Logger logger = LoggerFactory.getLogger(ConnectionManager.class);
 
+    /**
+     * 当没有可用handler时 重试时间间隔
+     */
+    private static final long HANDLER_RETRY_TIME_INTERVAL = 5000L;
+
     private EventLoopGroup eventLoopGroup = new NioEventLoopGroup(NettyRuntime.availableProcessors() / 2);
     /**
      * client建立连线程池
@@ -41,7 +46,6 @@ public class ConnectionManager implements Observer {
     private CopyOnWriteArraySet<RpcProtocol> rpcProtocolSet = new CopyOnWriteArraySet<>();
     private ReentrantLock lock = new ReentrantLock();
     private Condition connected = lock.newCondition();
-    private long waitTimeout = 5000L;
     private volatile boolean isRunning = true;
 
     private ServiceDiscovery serviceDiscovery;
@@ -260,7 +264,7 @@ public class ConnectionManager implements Observer {
         lock.lock();
         try {
             logger.warn("Waiting for available service.");
-            connected.await(this.waitTimeout, TimeUnit.MILLISECONDS);
+            connected.await(HANDLER_RETRY_TIME_INTERVAL, TimeUnit.MILLISECONDS);
         } finally {
             lock.unlock();
         }
