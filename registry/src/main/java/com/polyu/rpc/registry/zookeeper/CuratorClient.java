@@ -1,6 +1,5 @@
 package com.polyu.rpc.registry.zookeeper;
 
-import com.polyu.rpc.registry.Constant;
 import com.polyu.rpc.registry.RegistryConfigEnum;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;

@@ -4,7 +4,6 @@ import com.polyu.rpc.registry.RegistryConfigEnum;
 import com.polyu.rpc.registry.observation.Observer;
 import com.polyu.rpc.protocol.RpcProtocol;
 import com.polyu.rpc.registry.ServiceDiscovery;
-import com.polyu.rpc.registry.Constant;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;

@@ -8,7 +8,6 @@ import com.polyu.rpc.protocol.RpcServiceInfo;
 import com.polyu.rpc.registry.RegistryConfigEnum;
 import com.polyu.rpc.registry.ServiceRegistry;
 import com.polyu.rpc.util.ServiceUtil;
-import com.polyu.rpc.registry.Constant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
