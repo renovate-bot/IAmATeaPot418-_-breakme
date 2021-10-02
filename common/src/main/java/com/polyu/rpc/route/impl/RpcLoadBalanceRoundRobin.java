@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * 轮询
  */
-public class RpcLoadBalanceRoundRobin extends RpcLoadBalance {
+public class RpcLoadBalanceRoundRobin implements RpcLoadBalance {
     private AtomicInteger roundRobin;
     private static final Logger logger = LoggerFactory.getLogger(RpcLoadBalanceRoundRobin.class);
 

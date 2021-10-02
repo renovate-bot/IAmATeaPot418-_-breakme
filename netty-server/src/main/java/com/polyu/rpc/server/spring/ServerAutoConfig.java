@@ -14,15 +14,33 @@ public class ServerAutoConfig {
     private static final String NACOS_CONFIG_TYPE = "nacos";
     private static final String ZK_CONFIG_TYPE = "zookeeper";
 
-    @Value("${bRPC.server.registry.type}")
-    private String registryCenter;
+    /**
+     * 应用名
+     */
+    @Value("${bRPC.server.application.name}")
+    private String applicationName;
 
+    /**
+     * 服务地址 ip:port
+     */
     @Value("${bRPC.server.address}")
     private String serverAddress;
 
+    /**
+     * 注册中心类型
+     */
+    @Value("${bRPC.server.registry.type}")
+    private String registryCenter;
+
+    /**
+     * 注册中心地址 ip:port
+     */
     @Value("${bRPC.server.registry.address}")
     private String registryAddress;
 
+    /**
+     * 是否启用业务线程池自定义设置
+     */
     @Value("${bRPC.server.enableThreadPoolSize:#{false}}")
     private Boolean enableThreadPoolSize;
 
@@ -38,10 +56,10 @@ public class ServerAutoConfig {
         if (registryCenter != null && !"".equals(registryAddress)) {
             switch (registryCenter) {
                 case NACOS_CONFIG_TYPE:
-                    serviceRegistry = new NacosRegistry(registryAddress);
+                    serviceRegistry = new NacosRegistry(registryAddress, applicationName);
                     break;
                 case ZK_CONFIG_TYPE:
-                    serviceRegistry = new ZKRegistry(registryAddress);
+                    serviceRegistry = new ZKRegistry(registryAddress, applicationName);
                     break;
                 default:
                     throw new Exception("Wrong type of registry type for " + registryCenter);

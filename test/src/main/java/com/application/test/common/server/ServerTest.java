@@ -12,15 +12,15 @@ public class ServerTest {
 
     public static void main(String[] args) throws Exception {
 //        String serverAddress = "127.0.0.1:18877";
-//        String serverAddress = "127.0.0.1:18876";
+        String serverAddress = "127.0.0.1:18876";
 //        String serverAddress = "127.0.0.1:18875";
-        String serverAddress = "127.0.0.1:18874";
+//        String serverAddress = "127.0.0.1:18874";
 
         // zk
         String registryAddress = "127.0.0.1:2181";
         // nacos
 //        String registryAddress = "127.0.0.1:8848";
-        ServiceRegistry serviceRegistry = new ZKRegistry(registryAddress);
+        ServiceRegistry serviceRegistry = new ZKRegistry(registryAddress, "testYYB");
         NettyServer rpcServer = new NettyServer(serverAddress, serviceRegistry);
         HelloService helloService1 = new HelloServiceImpl();
         HelloServiceImpl2  helloService2 = new HelloServiceImpl2();

@@ -12,6 +12,12 @@ public class ClientAutoConfig {
     private static final String NACOS_CONFIG_TYPE = "nacos";
     private static final String ZK_CONFIG_TYPE = "zookeeper";
 
+    /**
+     * 订阅目标服务应用名
+     */
+    @Value("${bRPC.client.registry.target.name}")
+    private String targetApplicationName;
+
     @Value("${bRPC.client.registry.type}")
     private String registryCenter;
 
@@ -24,10 +30,10 @@ public class ClientAutoConfig {
         if (registryCenter != null && !"".equals(registryAddress)) {
             switch (registryCenter) {
                 case NACOS_CONFIG_TYPE:
-                    serviceDiscovery = new NacosDiscovery(registryAddress);
+                    serviceDiscovery = new NacosDiscovery(registryAddress, targetApplicationName);
                     break;
                 case ZK_CONFIG_TYPE:
-                    serviceDiscovery = new ZKDiscovery(registryAddress);
+                    serviceDiscovery = new ZKDiscovery(registryAddress, targetApplicationName);
                     break;
                 default:
                     throw new Exception("Wrong type of registry type for " + registryCenter);

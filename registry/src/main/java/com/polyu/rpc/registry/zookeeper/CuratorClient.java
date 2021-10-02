@@ -1,6 +1,7 @@
 package com.polyu.rpc.registry.zookeeper;
 
 import com.polyu.rpc.registry.Constant;
+import com.polyu.rpc.registry.RegistryConfigEnum;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
@@ -29,11 +30,16 @@ public class CuratorClient {
     }
 
     public CuratorClient(String connectString, int timeout) {
-        this(connectString, Constant.ZK_NAMESPACE, timeout, timeout);
+        this(connectString, RegistryConfigEnum.ZK_NAME_SAPCE.getValue(), timeout, timeout);
     }
 
     public CuratorClient(String connectString) {
-        this(connectString, Constant.ZK_NAMESPACE, Constant.ZK_SESSION_TIMEOUT, Constant.ZK_CONNECTION_TIMEOUT);
+        this(
+                connectString,
+                RegistryConfigEnum.ZK_NAME_SAPCE.getValue(),
+                RegistryConfigEnum.ZK_SESSION_TIMEOUT.getTimeOutLength(),
+                RegistryConfigEnum.ZK_CONNECTION_TIMEOUT.getTimeOutLength()
+        );
     }
 
     public CuratorFramework getClient() {

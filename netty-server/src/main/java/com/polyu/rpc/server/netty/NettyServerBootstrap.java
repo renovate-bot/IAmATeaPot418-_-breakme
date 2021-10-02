@@ -85,7 +85,7 @@ public class NettyServerBootstrap implements Runnable {
             ChannelFuture future = bootstrap.bind(port).sync();
             // 服务注册
             registerService(host, port);
-            logger.info("Server started on port {}", port);
+            logger.info("Server started on port {}.", port);
             future.channel().closeFuture().sync();
         } catch (Exception e) {
             if (e instanceof InterruptedException) {

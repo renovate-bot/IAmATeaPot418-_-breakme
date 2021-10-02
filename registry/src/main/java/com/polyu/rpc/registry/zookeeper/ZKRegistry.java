@@ -2,6 +2,7 @@ package com.polyu.rpc.registry.zookeeper;
 
 import com.polyu.rpc.protocol.RpcProtocol;
 import com.polyu.rpc.protocol.RpcServiceInfo;
+import com.polyu.rpc.registry.RegistryConfigEnum;
 import com.polyu.rpc.registry.ServiceRegistry;
 import com.polyu.rpc.util.ServiceUtil;
 import com.polyu.rpc.registry.Constant;
@@ -22,8 +23,19 @@ public class ZKRegistry implements ServiceRegistry {
     private CuratorClient zkClient;
     private String zkPath;
 
+    /**
+     * 应用名
+     */
+    private String applicationName;
+
     public ZKRegistry(String registryAddress) {
         this.zkClient = new CuratorClient(registryAddress, TIME_OUT_LENGTH);
+        this.applicationName = "DefaultApplication";
+    }
+
+    public ZKRegistry(String registryAddress, String applicationName) {
+        this.zkClient = new CuratorClient(registryAddress, TIME_OUT_LENGTH);
+        this.applicationName = applicationName;
     }
 
     /**
@@ -42,7 +54,7 @@ public class ZKRegistry implements ServiceRegistry {
             rpcProtocol.setServiceInfoList(serviceInfoList);
             String serviceData = rpcProtocol.toJson();
             byte[] bytes = serviceData.getBytes();
-            String path = Constant.ZK_DATA_PATH + "-" + rpcProtocol.hashCode();
+            String path = RegistryConfigEnum.ZK_REGISTRY_PATH.getValue().concat(this.applicationName) + "/data-" + rpcProtocol.hashCode();
             path = this.zkClient.createPathData(path, bytes);
             this.zkPath = path;
             logger.info("Register {} new service, host: {}, port: {}.", serviceInfoList.size(), host, port);

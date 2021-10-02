@@ -6,6 +6,7 @@ import com.alibaba.nacos.api.naming.listener.Event;
 import com.alibaba.nacos.api.naming.listener.EventListener;
 import com.alibaba.nacos.api.naming.listener.NamingEvent;
 import com.alibaba.nacos.api.naming.pojo.Instance;
+import com.polyu.rpc.registry.RegistryConfigEnum;
 import com.polyu.rpc.registry.observation.Observer;
 import com.polyu.rpc.protocol.RpcProtocol;
 import com.polyu.rpc.registry.ServiceDiscovery;
@@ -22,7 +23,11 @@ public class NacosDiscovery implements ServiceDiscovery {
     private static final Logger logger = LoggerFactory.getLogger(NacosDiscovery.class);
 
     private NamingService namingService;
-    private String applicationName;
+
+    /**
+     * 订阅目标server服务名
+     */
+    private String targetApplicationName;
 
     /**
      * 观察者引用
@@ -35,7 +40,7 @@ public class NacosDiscovery implements ServiceDiscovery {
         } catch (Exception e) {
             logger.error("Nacos namingService creation failed. exception: {}", e.getMessage());
         }
-        this.applicationName = applicationName;
+        this.targetApplicationName = applicationName;
     }
 
     public NacosDiscovery(String registryAddress) {
@@ -44,7 +49,7 @@ public class NacosDiscovery implements ServiceDiscovery {
         } catch (Exception e) {
             logger.error("Nacos namingService creation failed. exception: {}", e.getMessage());
         }
-        this.applicationName = "DefaultApplication";
+        this.targetApplicationName = "DefaultApplication";
     }
 
     /**
@@ -54,7 +59,7 @@ public class NacosDiscovery implements ServiceDiscovery {
     @Override
     public void discoveryService() {
         try {
-            String serviceName = Constant.NACOS_NAMESPACE_PREFIX.concat(this.applicationName);
+            String serviceName = RegistryConfigEnum.NACOS_REGISTRY_PATH.getValue().concat(this.targetApplicationName);
             List<Instance> instances = namingService.selectInstances(serviceName, true);
             List<RpcProtocol> rpcProtocols = instances2RpcProtocols(instances);
             // 观察者模式 进行通知
