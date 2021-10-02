@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class PendingRpcHolder {
 
-    private static ConcurrentHashMap<String, RpcFuture> pendingRPC = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, RpcFuture> pendingRPC = new ConcurrentHashMap<>();
 
     public static ConcurrentHashMap<String, RpcFuture> getPendingRPC() {
         return pendingRPC;
