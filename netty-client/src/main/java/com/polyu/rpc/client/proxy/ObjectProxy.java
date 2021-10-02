@@ -4,6 +4,7 @@ import com.polyu.rpc.client.connection.ConnectionManager;
 import com.polyu.rpc.client.handler.RpcClientHandler;
 import com.polyu.rpc.client.result.future.RpcFuture;
 import com.polyu.rpc.codec.RpcRequest;
+import com.polyu.rpc.route.DefaultRpcLoadBalanceHolder;
 import com.polyu.rpc.route.RpcLoadBalance;
 import com.polyu.rpc.util.ServiceUtil;
 import org.slf4j.Logger;
@@ -32,9 +33,9 @@ public class ObjectProxy<T, P> implements InvocationHandler, RpcService<T, P, Se
 
     /**
      * 动态代理调用
-     * @param proxy
-     * @param method
-     * @param args
+     * @param proxy 代理
+     * @param method 方法
+     * @param args 参数
      * @return
      * @throws Throwable
      */
@@ -49,7 +50,7 @@ public class ObjectProxy<T, P> implements InvocationHandler, RpcService<T, P, Se
         request.setVersion(version);
 
         String serviceKey = ServiceUtil.makeServiceKey(method.getDeclaringClass().getName(), version);
-        RpcClientHandler handler = ConnectionManager.getInstance().chooseHandler(serviceKey, loadBalance == null ? RpcLoadBalance.getDefaultInstance() : loadBalance);
+        RpcClientHandler handler = ConnectionManager.getInstance().chooseHandler(serviceKey, loadBalance == null ? DefaultRpcLoadBalanceHolder.getInstance() : loadBalance);
         RpcFuture rpcFuture = handler.sendRequest(request);
         return rpcFuture.get();
     }
@@ -57,7 +58,7 @@ public class ObjectProxy<T, P> implements InvocationHandler, RpcService<T, P, Se
     @Override
     public RpcFuture call(String funcName, Object... args) throws Exception {
         String serviceKey = ServiceUtil.makeServiceKey(this.clazz.getName(), version);
-        RpcClientHandler handler = ConnectionManager.getInstance().chooseHandler(serviceKey, loadBalance == null ? RpcLoadBalance.getDefaultInstance() : loadBalance);
+        RpcClientHandler handler = ConnectionManager.getInstance().chooseHandler(serviceKey, loadBalance == null ? DefaultRpcLoadBalanceHolder.getInstance() : loadBalance);
         RpcRequest request = createRequest(this.clazz.getName(), funcName, args);
         RpcFuture rpcFuture = handler.sendRequest(request);
         return rpcFuture;
@@ -66,7 +67,7 @@ public class ObjectProxy<T, P> implements InvocationHandler, RpcService<T, P, Se
     @Override
     public RpcFuture call(SerializableFunction<T> tSerializableFunction, Object... args) throws Exception {
         String serviceKey = ServiceUtil.makeServiceKey(this.clazz.getName(), version);
-        RpcClientHandler handler = ConnectionManager.getInstance().chooseHandler(serviceKey, loadBalance == null ? RpcLoadBalance.getDefaultInstance() : loadBalance);
+        RpcClientHandler handler = ConnectionManager.getInstance().chooseHandler(serviceKey, loadBalance == null ? DefaultRpcLoadBalanceHolder.getInstance() : loadBalance);
         RpcRequest request = createRequest(this.clazz.getName(), tSerializableFunction.getName(), args);
         return handler.sendRequest(request);
     }

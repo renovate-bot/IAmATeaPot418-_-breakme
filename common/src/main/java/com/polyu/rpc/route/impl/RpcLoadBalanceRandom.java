@@ -12,7 +12,7 @@ import java.util.Random;
 /**
  * 随机
  */
-public class RpcLoadBalanceRandom extends RpcLoadBalance {
+public class RpcLoadBalanceRandom implements RpcLoadBalance {
 
     private Random random;
     private static final Logger logger = LoggerFactory.getLogger(RpcLoadBalanceRandom.class);

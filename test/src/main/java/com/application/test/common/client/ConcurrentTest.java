@@ -3,6 +3,7 @@ package com.application.test.common.client;
 import com.application.test.service.HelloService;
 import com.polyu.rpc.client.RpcClient;
 import com.polyu.rpc.registry.zookeeper.ZKDiscovery;
+import com.polyu.rpc.route.impl.RpcLoadBalanceRandom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,8 +18,8 @@ public class ConcurrentTest {
     private static Semaphore semaphore;
 
     public static void main(String[] args) throws Exception {
-        new RpcClient(new ZKDiscovery("127.0.0.1:2181"));
-        helloService = RpcClient.createService(HelloService.class, "1.0");
+        new RpcClient(new ZKDiscovery("127.0.0.1:2181", "testYYB"));
+        helloService = RpcClient.createService(HelloService.class, "1.0", new RpcLoadBalanceRandom());
         for (int i = 0; i < 50; i++) {
             String res = helloService.hello("Yan Yibin");
             logger.info(res);
@@ -44,7 +45,7 @@ public class ConcurrentTest {
 
         @Override
         public void run() {
-            for (int i = 0; i < 50000; i++) {
+            for (int i = 0; i < 5000; i++) {
                 String res = helloService.hello("Yan Yibin");
                 logger.info(res);
             }

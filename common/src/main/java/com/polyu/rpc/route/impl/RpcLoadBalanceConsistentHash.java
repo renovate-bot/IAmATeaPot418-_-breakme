@@ -12,9 +12,10 @@ import java.util.List;
 /**
  * 一致性哈希
  */
-public class RpcLoadBalanceConsistentHash extends RpcLoadBalance {
+public class RpcLoadBalanceConsistentHash implements RpcLoadBalance {
     private static final Logger logger = LoggerFactory.getLogger(RpcLoadBalanceConsistentHash.class);
 
+    // todo 也许逻辑有问题 同一个接口的key可能永远打到某台server
     private RpcProtocol doRoute(String serviceKey, List<RpcProtocol> addressList) {
         int index = Hashing.consistentHash(serviceKey.hashCode(), addressList.size());
         return addressList.get(index);
