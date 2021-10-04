@@ -28,12 +28,12 @@ public @interface BRpcProvider {
      * coreThreadPoolSize <= maxThreadPoolSize
      * 否则配置无效 走默认设置参数值
      */
-    int coreThreadPoolSize() default 35;
+    int coreThreadPoolSize() default 30;
 
     /**
      * 要求:
      * maxThreadPoolSize > 0
      * 否则配置无效 走默认设置参数值
      */
-    int maxThreadPoolSize() default 70;
+    int maxThreadPoolSize() default 65;
 }

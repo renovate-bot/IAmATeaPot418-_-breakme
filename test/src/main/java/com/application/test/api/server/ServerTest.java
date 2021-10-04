@@ -1,4 +1,4 @@
-package com.application.test.common.server;
+package com.application.test.api.server;
 
 import com.application.test.service.HelloService;
 import com.application.test.service.HelloService2;
@@ -12,8 +12,8 @@ public class ServerTest {
 
     public static void main(String[] args) throws Exception {
 //        String serverAddress = "127.0.0.1:18877";
-        String serverAddress = "127.0.0.1:18876";
-//        String serverAddress = "127.0.0.1:18875";
+//        String serverAddress = "127.0.0.1:18876";
+        String serverAddress = "127.0.0.1:18875";
 //        String serverAddress = "127.0.0.1:18874";
 
         // zk

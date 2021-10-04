@@ -10,7 +10,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-public class KryoSerializer extends Serializer {
+public class KryoSerializer implements Serializer {
     private KryoPool pool = KryoPoolFactory.getKryoPoolInstance();
 
     /**
