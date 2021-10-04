@@ -1,4 +1,4 @@
-package com.application.test.common.client;
+package com.application.test.api.client;
 
 import com.application.test.service.HelloService;
 import com.polyu.rpc.client.RpcClient;
@@ -37,7 +37,7 @@ public class ConcurrentTest {
             }
             semaphore.acquire(i);
             long e = System.currentTimeMillis();
-            System.out.println("qps = " + i * 50000 / ((e - s) / 1000));
+            System.out.println("qps = " + i * 5000 / ((e - s) / 1000));
         }
     }
 

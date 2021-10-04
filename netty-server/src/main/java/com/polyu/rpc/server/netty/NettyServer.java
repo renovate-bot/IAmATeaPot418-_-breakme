@@ -2,7 +2,6 @@ package com.polyu.rpc.server.netty;
 
 
 import com.polyu.rpc.registry.ServiceRegistry;
-import com.polyu.rpc.registry.zookeeper.ZKRegistry;
 import com.polyu.rpc.server.Server;
 import com.polyu.rpc.util.ServiceUtil;
 import lombok.NoArgsConstructor;
@@ -19,11 +18,11 @@ public class NettyServer extends Server {
     /**
      * 业务线程池核心线程数
      */
-    private int coreThreadPoolSize = 35;
+    private int coreThreadPoolSize = 30;
     /**
      * 业务线程池最大线程数
      */
-    private int maxThreadPoolSize = 70;
+    private int maxThreadPoolSize = 65;
 
     private Thread thread;
     private String serverAddress;

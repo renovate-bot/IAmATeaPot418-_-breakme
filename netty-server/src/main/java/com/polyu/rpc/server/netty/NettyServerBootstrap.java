@@ -24,7 +24,7 @@ public class NettyServerBootstrap implements Runnable {
     private int MAX_THREAD_POOL_SIZE = 70;
 
     private String serverAddress;
-//    private ServiceRegistry serviceRegistry;
+
     private ServiceRegistry serviceRegistry;
 
     private Map<String, Object> serviceKey2BeanMap;

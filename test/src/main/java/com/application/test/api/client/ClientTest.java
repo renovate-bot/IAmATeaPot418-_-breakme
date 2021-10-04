@@ -1,4 +1,4 @@
-package com.application.test.common.client;
+package com.application.test.api.client;
 
 import com.application.test.service.HelloService;
 import com.polyu.rpc.client.RpcClient;
