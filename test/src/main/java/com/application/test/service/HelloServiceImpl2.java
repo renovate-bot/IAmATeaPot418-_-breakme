@@ -6,6 +6,12 @@ import com.polyu.rpc.annotation.BRpcProvider;
 public class HelloServiceImpl2 implements HelloService2 {
     @Override
     public String hello(String name) {
+        try{
+            Thread.sleep(10000L);
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
         return name;
     }
 }

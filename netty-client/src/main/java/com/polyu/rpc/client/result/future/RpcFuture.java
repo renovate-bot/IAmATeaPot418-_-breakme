@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.AbstractQueuedSynchronizer;
@@ -24,6 +25,7 @@ public class RpcFuture implements Future<Object> {
     private long responseTimeThreshold = 5000;
     private List<AsyncRPCCallback> pendingCallbacks = new ArrayList<>();
     private ReentrantLock lock = new ReentrantLock();
+    private volatile Exception timeoutException;
 
     public RpcFuture(RpcRequest request) {
         this.sync = new Sync();
@@ -37,19 +39,21 @@ public class RpcFuture implements Future<Object> {
     }
 
     @Override
-    public Object get() {
+    public Object get() throws CancellationException {
         sync.acquire(1);
-        if (this.response != null) {
+        if (!isCancelled() && this.response != null) {
             return this.response.getResult();
-        } else {
-            return null;
         }
+        if (isCancelled()) {
+            throw (CancellationException)timeoutException;
+        }
+        return null;
     }
 
     @Override
-    public Object get(long timeout, TimeUnit unit) throws InterruptedException {
+    public Object get(long timeout, TimeUnit unit) throws CancellationException, InterruptedException {
         boolean success = sync.tryAcquireNanos(1, unit.toNanos(timeout));
-        if (success) {
+        if (! isCancelled() & success) {
             if (this.response != null) {
                 return this.response.getResult();
             } else {
@@ -64,22 +68,31 @@ public class RpcFuture implements Future<Object> {
 
     @Override
     public boolean isCancelled() {
-        throw new UnsupportedOperationException();
+        return timeoutException != null;
     }
 
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {
-        throw new UnsupportedOperationException();
+        logger.warn("Service response time is too slow. Canceling...");
+        timeoutException = new CancellationException("client time out");
+        sync.release(1);
+        return true;
+    }
+
+    public boolean isTimeout(){
+        return System.currentTimeMillis() - startTime > responseTimeThreshold;
     }
 
     public void done(RpcResponse response) {
-        this.response = response;
-        sync.release(1);
-        invokeCallbacks();
-        // Threshold
-        long responseTime = System.currentTimeMillis() - startTime;
-        if (responseTime > this.responseTimeThreshold) {
-            logger.warn("Service response time is too slow. Request id = " + response.getRequestId() + ". Response Time = " + responseTime + "ms");
+        if (! isCancelled()) {
+            this.response = response;
+            sync.release(1);
+            invokeCallbacks();
+            // Threshold
+            long responseTime = System.currentTimeMillis() - startTime;
+            if (responseTime > this.responseTimeThreshold) {
+                logger.warn("Service response time is too slow. Request id = " + response.getRequestId() + ". Response Time = " + responseTime + "ms");
+            }
         }
     }
 
