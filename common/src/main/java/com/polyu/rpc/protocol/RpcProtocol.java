@@ -46,6 +46,10 @@ public class RpcProtocol implements Serializable {
         return thisList.containsAll(thatList) && thatList.containsAll(thisList);
     }
 
+    /**
+     * 服务列表不一样 即使ip & port相同也不属于同一个zk节点
+     * @return
+     */
     @Override
     public int hashCode() {
         return Objects.hash(host, port, serviceInfoList.hashCode());

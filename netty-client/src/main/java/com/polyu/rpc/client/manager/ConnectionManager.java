@@ -1,14 +1,13 @@
-package com.polyu.rpc.client.connection;
+package com.polyu.rpc.client.manager;
 
 import com.polyu.rpc.registry.observation.Observer;
 import com.polyu.rpc.registry.ServiceDiscovery;
 import com.polyu.rpc.route.ProtocolsKeeper;
 import com.polyu.rpc.protocol.RpcProtocol;
 import com.polyu.rpc.protocol.RpcServiceInfo;
-import com.polyu.rpc.route.RpcLoadBalance;
 import com.polyu.rpc.util.ThreadPoolUtil;
-import com.polyu.rpc.client.handler.RpcClientHandler;
-import com.polyu.rpc.client.handler.RpcClientInitializer;
+import com.polyu.rpc.client.netty.handler.RpcClientHandler;
+import com.polyu.rpc.client.netty.RpcClientInitializer;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -25,29 +24,20 @@ import org.slf4j.LoggerFactory;
 import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class ConnectionManager implements Observer {
     private static final Logger logger = LoggerFactory.getLogger(ConnectionManager.class);
-
-    /**
-     * 当没有可用handler时 重试时间间隔
-     */
-    private static final long HANDLER_RETRY_TIME_INTERVAL = 5000L;
 
     private EventLoopGroup eventLoopGroup = new NioEventLoopGroup(NettyRuntime.availableProcessors() / 2);
     /**
      * client建立连线程池
      */
-    private static ThreadPoolExecutor threadPoolExecutor = ThreadPoolUtil.makeThreadPool(4, 8, 600L);
+    private static ThreadPoolExecutor connectionThreadPool = ThreadPoolUtil.makeThreadPool(4, 8, 600L);
 
     private Map<RpcProtocol, RpcClientHandler> connectedServerNodes = new ConcurrentHashMap<>();
     private CopyOnWriteArraySet<RpcProtocol> rpcProtocolSet = new CopyOnWriteArraySet<>();
-    private ReentrantLock lock = new ReentrantLock();
-    private Condition connected = lock.newCondition();
-    private volatile boolean isRunning = true;
 
+    private volatile boolean isRunning = true;
     private ServiceDiscovery serviceDiscovery;
 
     /**
@@ -111,7 +101,7 @@ public class ConnectionManager implements Observer {
         return SingletonHolder.instance;
     }
 
-    public void updateConnectedServer(List<RpcProtocol> serviceList) {
+    private void updateConnectedServer(List<RpcProtocol> serviceList) {
         // Now using 2 collections to manage the service info and TCP connections because making the connection is async
         // Once service info is updated on ZK, will trigger this function
         // Actually client should only care about the service it is using
@@ -130,7 +120,7 @@ public class ConnectionManager implements Observer {
             // Close and remove invalid server nodes
             for (RpcProtocol rpcProtocol : rpcProtocolSet) {
                 if (!serviceSet.contains(rpcProtocol)) {
-                    logger.info("Remove invalid service: " + rpcProtocol.toJson());
+                    logger.info("Remove invalid service: {}.", rpcProtocol.toJson());
                     removeAndCloseHandler(rpcProtocol);
                 }
             }
@@ -210,16 +200,16 @@ public class ConnectionManager implements Observer {
 
     public void connectServerNode(RpcProtocol rpcProtocol) {
         if (rpcProtocol.getServiceInfoList() == null || rpcProtocol.getServiceInfoList().isEmpty()) {
-            logger.info("No service on node, host: {}, port: {}", rpcProtocol.getHost(), rpcProtocol.getPort());
+            logger.info("No service on node, host: {}, port: {}.", rpcProtocol.getHost(), rpcProtocol.getPort());
             return;
         }
         rpcProtocolSet.add(rpcProtocol);
-        logger.info("New service node, host: {}, port: {}", rpcProtocol.getHost(), rpcProtocol.getPort());
+        logger.info("New service node, host: {}, port: {}.", rpcProtocol.getHost(), rpcProtocol.getPort());
         for (RpcServiceInfo serviceProtocol : rpcProtocol.getServiceInfoList()) {
-            logger.info("New service info, name: {}, version: {}", serviceProtocol.getServiceName(), serviceProtocol.getVersion());
+            logger.info("New service info, name: {}, version: {}.", serviceProtocol.getServiceName(), serviceProtocol.getVersion());
         }
         final InetSocketAddress remotePeer = new InetSocketAddress(rpcProtocol.getHost(), rpcProtocol.getPort());
-        threadPoolExecutor.submit(new Runnable() {
+        connectionThreadPool.submit(new Runnable() {
             @Override
             public void run() {
                 Bootstrap b = new Bootstrap();
@@ -230,63 +220,25 @@ public class ConnectionManager implements Observer {
                 ChannelFuture channelFuture = b.connect(remotePeer);
                 channelFuture.addListener(new ChannelFutureListener() {
                     @Override
-                    public void operationComplete(final ChannelFuture channelFuture) throws Exception {
+                    public void operationComplete(final ChannelFuture channelFuture) {
                         if (channelFuture.isSuccess()) {
-                            logger.info("Successfully connect to remote server, remote peer = {}", remotePeer);
+                            logger.info("Successfully connect to remote server, remote peer = {}.", remotePeer);
                             RpcClientHandler rpcClientHandler = channelFuture.channel().pipeline().get(RpcClientHandler.class);
                             connectedServerNodes.put(rpcProtocol, rpcClientHandler);
                             rpcClientHandler.setRpcProtocol(rpcProtocol);
                             rpcClientHandler.setIntentionalClose(false);
                             // 方便后续快速选择 在此记录
                             ProtocolsKeeper.addZkChild(rpcProtocol);
-                            signalAvailableHandler();
+                            HandlerManager.signalAvailableHandler();
                         } else {
                             // 失败进行回收
-                            removeHandler(rpcProtocol);
-                            logger.error("Can not connect to remote server, remote peer = {}", remotePeer);
+                            removeConnectRecord(rpcProtocol);
+                            logger.error("Can not connect to remote server, remote peer = {}.", remotePeer);
                         }
                     }
                 });
             }
         });
-    }
-
-    private void signalAvailableHandler() {
-        lock.lock();
-        try {
-            connected.signalAll();
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    private void waitingForHandler() throws InterruptedException {
-        lock.lock();
-        try {
-            logger.warn("Waiting for available service.");
-            connected.await(HANDLER_RETRY_TIME_INTERVAL, TimeUnit.MILLISECONDS);
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    public RpcClientHandler chooseHandler(String serviceKey, RpcLoadBalance loadBalance) throws Exception {
-        int size = connectedServerNodes.values().size();
-        while (isRunning && size <= 0) {
-            try {
-                waitingForHandler();
-                size = connectedServerNodes.values().size();
-            } catch (InterruptedException e) {
-                logger.error("Waiting for available service is interrupted!", e);
-            }
-        }
-        RpcProtocol rpcProtocol = loadBalance.route(serviceKey);
-        RpcClientHandler handler = connectedServerNodes.get(rpcProtocol);
-        if (handler != null) {
-            return handler;
-        } else {
-            throw new Exception("Can not get available connection.");
-        }
     }
 
     /**
@@ -295,20 +247,46 @@ public class ConnectionManager implements Observer {
      */
     private void removeAndCloseHandler(RpcProtocol rpcProtocol) {
         RpcClientHandler handler = connectedServerNodes.get(rpcProtocol);
+        removeConnectRecord(rpcProtocol);
         if (handler != null) {
             handler.setIntentionalClose(true);
             handler.close();
         }
-        connectedServerNodes.remove(rpcProtocol);
-        rpcProtocolSet.remove(rpcProtocol);
-        ProtocolsKeeper.removeZkChild(rpcProtocol);
     }
 
-    public void removeHandler(RpcProtocol rpcProtocol) {
+    /**
+     * 连接失败 移除连接记录
+     * @param rpcProtocol server information
+     */
+    public void removeConnectRecord(RpcProtocol rpcProtocol) {
         rpcProtocolSet.remove(rpcProtocol);
         connectedServerNodes.remove(rpcProtocol);
         ProtocolsKeeper.removeZkChild(rpcProtocol);
         logger.info("Remove one connection, host: {}, port: {}.", rpcProtocol.getHost(), rpcProtocol.getPort());
+    }
+
+    /**
+     * 获取protocol -> handler map
+     * @return protocol2handler
+     */
+    Map<RpcProtocol, RpcClientHandler> getConnectedServerNodes() {
+        return connectedServerNodes;
+    }
+
+    /**
+     * 获取服务发现实例
+     * @return serviceDiscoveryImpl
+     */
+    public ServiceDiscovery getServiceDiscovery() {
+        return serviceDiscovery;
+    }
+
+    /**
+     * 获取运行状态
+     * @return boolean
+     */
+    boolean isRunning() {
+        return isRunning;
     }
 
     public void stop() {
@@ -316,12 +294,9 @@ public class ConnectionManager implements Observer {
         for (RpcProtocol rpcProtocol : rpcProtocolSet) {
             removeAndCloseHandler(rpcProtocol);
         }
-        signalAvailableHandler();
-        threadPoolExecutor.shutdown();
+        HandlerManager.signalAvailableHandler();
+        connectionThreadPool.shutdown();
         eventLoopGroup.shutdownGracefully();
     }
 
-    public ServiceDiscovery getServiceDiscovery() {
-        return serviceDiscovery;
-    }
 }
