@@ -1,4 +1,4 @@
-package com.polyu.rpc.client.handler;
+package com.polyu.rpc.client.netty.handler;
 
 import com.polyu.rpc.codec.HeartBeat;
 import io.netty.channel.Channel;
@@ -31,8 +31,8 @@ public class RpcHeartBeatHandler extends ChannelInboundHandlerAdapter {
     /**
      * 心跳事件进行处理
      *
-     * @param ctx
-     * @param evt
+     * @param ctx context
+     * @param evt event
      * @throws Exception
      */
     @Override
@@ -48,7 +48,6 @@ public class RpcHeartBeatHandler extends ChannelInboundHandlerAdapter {
                     break;
                 case ALL_IDLE:
                     sendHeartBeatPackage();
-                    logger.debug("Client send beat-ping to {}", remotePeer);
                     logger.info("heart beat ALL_IDLE event triggered.");
                     break;
             }
@@ -59,10 +58,11 @@ public class RpcHeartBeatHandler extends ChannelInboundHandlerAdapter {
      * 发送心跳包
      */
     private void sendHeartBeatPackage() {
+        logger.info("Client send beat-ping to {}.", remotePeer);
         try {
             channel.writeAndFlush(HeartBeat.BEAT_PING);
         } catch (Exception e) {
-            logger.error("Send heartBeatPackage exception: {}", e.getMessage());
+            logger.error("Send heartBeatPackage exception: {}.", e.getMessage());
         }
     }
 

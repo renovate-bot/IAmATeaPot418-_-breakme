@@ -1,11 +1,10 @@
 package com.polyu.rpc.client;
 
 import com.polyu.rpc.annotation.BRpcConsumer;
-import com.polyu.rpc.client.connection.ConnectionManager;
+import com.polyu.rpc.client.manager.ConnectionManager;
 import com.polyu.rpc.client.proxy.ObjectProxy;
 import com.polyu.rpc.client.proxy.RpcService;
 import com.polyu.rpc.registry.ServiceDiscovery;
-import com.polyu.rpc.registry.zookeeper.ZKDiscovery;
 import com.polyu.rpc.route.RpcLoadBalance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +27,7 @@ public class RpcClient implements ApplicationContextAware, DisposableBean {
      * 异步请求 线程池
      */
     private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(16, 16,
-            600L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(1000));
+            600L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(1000));
 
     /**
      * 注册中心地址 & 注册中心选型
@@ -36,16 +35,6 @@ public class RpcClient implements ApplicationContextAware, DisposableBean {
      */
     public RpcClient(ServiceDiscovery serviceDiscovery) {
         ConnectionManager connectionManager = ConnectionManager.getAndInitInstance(serviceDiscovery);
-        this.serviceDiscovery = connectionManager.getServiceDiscovery();
-        this.serviceDiscovery.discoveryService();
-    }
-
-    /**
-     * todo 待删
-     * just for test
-     */
-    public RpcClient(String discoveryAddress) {
-        ConnectionManager connectionManager = ConnectionManager.getAndInitInstance(new ZKDiscovery(discoveryAddress));
         this.serviceDiscovery = connectionManager.getServiceDiscovery();
         this.serviceDiscovery.discoveryService();
     }

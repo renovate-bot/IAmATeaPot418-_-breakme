@@ -12,8 +12,8 @@ public class ServerTest {
 
     public static void main(String[] args) throws Exception {
 //        String serverAddress = "127.0.0.1:18877";
-//        String serverAddress = "127.0.0.1:18876";
-        String serverAddress = "127.0.0.1:18875";
+        String serverAddress = "127.0.0.1:18876";
+//        String serverAddress = "127.0.0.1:18875";
 //        String serverAddress = "127.0.0.1:18874";
 
         // zk
