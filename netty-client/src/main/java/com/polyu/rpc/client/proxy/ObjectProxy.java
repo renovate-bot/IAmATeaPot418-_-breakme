@@ -19,11 +19,13 @@ public class ObjectProxy<T, P> implements InvocationHandler, RpcService<T, P, Se
     private Class<T> clazz;
     private String version;
     private RpcLoadBalance loadBalance;
+    private long timeoutLength;
 
-    public ObjectProxy(Class<T> clazz, String version, RpcLoadBalance loadBalance) {
+    public ObjectProxy(Class<T> clazz, String version, RpcLoadBalance loadBalance, long timeoutLength) {
         this.clazz = clazz;
         this.version = version;
         this.loadBalance = loadBalance;
+        this.timeoutLength = timeoutLength;
     }
 
     public ObjectProxy(Class<T> clazz, String version) {
@@ -51,8 +53,11 @@ public class ObjectProxy<T, P> implements InvocationHandler, RpcService<T, P, Se
 
         String serviceKey = ServiceUtil.makeServiceKey(method.getDeclaringClass().getName(), version);
         RpcClientHandler handler = HandlerManager.chooseHandler(serviceKey, loadBalance == null ? DefaultRpcLoadBalanceHolder.getInstance() : loadBalance);
-        RpcFuture rpcFuture = handler.sendRequest(request);
-        return rpcFuture.get();
+        RpcFuture rpcFuture = handler.sendRequest(request, this.timeoutLength);
+        Object res = rpcFuture.get();
+        // 回调
+        rpcFuture.invokeCallbacks();
+        return res;
     }
 
     @Override
@@ -60,8 +65,7 @@ public class ObjectProxy<T, P> implements InvocationHandler, RpcService<T, P, Se
         String serviceKey = ServiceUtil.makeServiceKey(this.clazz.getName(), version);
         RpcClientHandler handler = HandlerManager.chooseHandler(serviceKey, loadBalance == null ? DefaultRpcLoadBalanceHolder.getInstance() : loadBalance);
         RpcRequest request = createRequest(this.clazz.getName(), funcName, args);
-        RpcFuture rpcFuture = handler.sendRequest(request);
-        return rpcFuture;
+        return handler.sendRequest(request, this.timeoutLength);
     }
 
     @Override
@@ -69,7 +73,7 @@ public class ObjectProxy<T, P> implements InvocationHandler, RpcService<T, P, Se
         String serviceKey = ServiceUtil.makeServiceKey(this.clazz.getName(), version);
         RpcClientHandler handler = HandlerManager.chooseHandler(serviceKey, loadBalance == null ? DefaultRpcLoadBalanceHolder.getInstance() : loadBalance);
         RpcRequest request = createRequest(this.clazz.getName(), tSerializableFunction.getName(), args);
-        return handler.sendRequest(request);
+        return handler.sendRequest(request, this.timeoutLength);
     }
 
     private RpcRequest createRequest(String className, String methodName, Object[] args) {

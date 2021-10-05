@@ -21,10 +21,11 @@ public class ClientTest {
      * @param args
      */
     public static void main(String[] args) throws InterruptedException {
-        new ClassPathXmlApplicationContext("client-spring.xml");
+        ClassPathXmlApplicationContext classPathXmlApplicationContext = new ClassPathXmlApplicationContext("client-spring.xml");
         String name1 = helloService.hello("yyb");
-        String name2 = helloService2.hello("cyx");
         System.out.println("name = " + name1);
-        System.out.println("name = " + name2);
+//        String name2 = helloService2.hello("cyx");
+//        System.out.println("name = " + name2);
+        classPathXmlApplicationContext.close();
     }
 }

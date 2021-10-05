@@ -1,6 +1,7 @@
 package com.polyu.rpc.client.spring;
 
 import com.polyu.rpc.client.RpcClient;
+import com.polyu.rpc.client.result.PendingRpcHolder;
 import com.polyu.rpc.registry.ServiceDiscovery;
 import com.polyu.rpc.registry.nacos.NacosDiscovery;
 import com.polyu.rpc.registry.zookeeper.ZKDiscovery;
@@ -24,9 +25,13 @@ public class ClientAutoConfig {
     @Value("${bRPC.client.registry.address}")
     private String registryAddress;
 
+    @Value("${bRPC.client.timeout.checkInterval:#{1500L}}")
+    private Long timeoutCheckInterval;
+
     @Bean
     public RpcClient createRpcClientBean() throws Exception {
         ServiceDiscovery serviceDiscovery = null;
+        PendingRpcHolder.setTimeoutCheckInterval(this.timeoutCheckInterval);
         if (registryCenter != null && !"".equals(registryAddress)) {
             switch (registryCenter) {
                 case NACOS_CONFIG_TYPE:

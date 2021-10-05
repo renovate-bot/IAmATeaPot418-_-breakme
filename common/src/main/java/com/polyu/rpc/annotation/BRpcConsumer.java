@@ -13,7 +13,6 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-@Component
 public @interface BRpcConsumer {
 
     /**
@@ -27,4 +26,9 @@ public @interface BRpcConsumer {
      *      RpcLoadBalanceRoundRobin.class(default) / RpcLoadBalanceRandom.class / RpcLoadBalanceConsistentHash.class
      */
     Class<?> loadBalanceStrategy() default RpcLoadBalanceRoundRobin.class;
+
+    /**
+     * 接口超时时间
+     */
+    long timeOutLength() default 3000L;
 }
