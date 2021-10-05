@@ -37,7 +37,7 @@ public class ConcurrentTest {
             }
             semaphore.acquire(i);
             long e = System.currentTimeMillis();
-            System.out.println("qps = " + i * 5000 / ((e - s) / 1000));
+            System.out.println("qps = " + i * 7000 / ((e - s) / 1000));
         }
     }
 
@@ -45,7 +45,7 @@ public class ConcurrentTest {
 
         @Override
         public void run() {
-            for (int i = 0; i < 5000; i++) {
+            for (int i = 0; i < 7000; i++) {
                 String res = helloService.hello("Yan Yibin");
                 logger.info(res);
             }

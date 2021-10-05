@@ -1,7 +1,6 @@
 package com.polyu.rpc.annotation;
 
 import com.polyu.rpc.route.impl.RpcLoadBalanceRoundRobin;
-import org.springframework.stereotype.Component;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
