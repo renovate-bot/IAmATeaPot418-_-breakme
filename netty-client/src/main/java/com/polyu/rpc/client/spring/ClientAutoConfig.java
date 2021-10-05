@@ -25,13 +25,13 @@ public class ClientAutoConfig {
     @Value("${bRPC.client.registry.address}")
     private String registryAddress;
 
-    @Value("${bRPC.client.timeout.checkInterval:#{3000L}}")
+    @Value("${bRPC.client.timeout.checkInterval:#{1500L}}")
     private Long timeoutCheckInterval;
 
     @Bean
     public RpcClient createRpcClientBean() throws Exception {
         ServiceDiscovery serviceDiscovery = null;
-        PendingRpcHolder.timeoutCheckInterval = this.timeoutCheckInterval;
+        PendingRpcHolder.setTimeoutCheckInterval(this.timeoutCheckInterval);
         if (registryCenter != null && !"".equals(registryAddress)) {
             switch (registryCenter) {
                 case NACOS_CONFIG_TYPE:

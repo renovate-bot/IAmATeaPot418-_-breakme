@@ -19,7 +19,7 @@ public class ConcurrentTest {
 
     public static void main(String[] args) throws Exception {
         new RpcClient(new ZKDiscovery("127.0.0.1:2181", "testYYB"));
-        helloService = RpcClient.createService(HelloService.class, "1.0", new RpcLoadBalanceRandom());
+        helloService = RpcClient.getProxyInstance(HelloService.class, "1.0", new RpcLoadBalanceRandom(), 3000L);
         for (int i = 0; i < 50; i++) {
             String res = helloService.hello("Yan Yibin");
             logger.info(res);

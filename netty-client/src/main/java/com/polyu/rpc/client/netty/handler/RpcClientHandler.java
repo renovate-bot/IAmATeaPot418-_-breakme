@@ -31,12 +31,11 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
         String requestId = response.getRequestId();
         logger.debug("Receive response: {}.", requestId);
         RpcFuture rpcFuture = PendingRpcHolder.getPendingRPC().get(requestId);
-        if (rpcFuture != null) {
-            PendingRpcHolder.getPendingRPC().remove(requestId);
-            rpcFuture.done(response);
-        } else {
-            logger.warn("Can not get pending response for request id: {}.", requestId);
+        if (rpcFuture == null) {
+            return;
         }
+        PendingRpcHolder.getPendingRPC().remove(requestId);
+        rpcFuture.done(response);
     }
 
     @Override
@@ -54,8 +53,8 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
      * @param request RpcRequest
      * @return result future
      */
-    public RpcFuture sendRequest(RpcRequest request) {
-        RpcFuture rpcFuture = new RpcFuture(request);
+    public RpcFuture sendRequest(RpcRequest request, long timeoutLength) {
+        RpcFuture rpcFuture = new RpcFuture(request, timeoutLength);
         PendingRpcHolder.getPendingRPC().put(request.getRequestId(), rpcFuture);
         try {
             ChannelFuture channelFuture = channel.writeAndFlush(request).sync();

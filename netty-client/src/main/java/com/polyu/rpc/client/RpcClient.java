@@ -4,6 +4,7 @@ import com.polyu.rpc.annotation.BRpcConsumer;
 import com.polyu.rpc.client.manager.ConnectionManager;
 import com.polyu.rpc.client.proxy.ObjectProxy;
 import com.polyu.rpc.client.proxy.RpcService;
+import com.polyu.rpc.client.result.PendingRpcHolder;
 import com.polyu.rpc.registry.ServiceDiscovery;
 import com.polyu.rpc.route.RpcLoadBalance;
 import org.slf4j.Logger;
@@ -37,29 +38,20 @@ public class RpcClient implements ApplicationContextAware, DisposableBean {
         ConnectionManager connectionManager = ConnectionManager.getAndInitInstance(serviceDiscovery);
         this.serviceDiscovery = connectionManager.getServiceDiscovery();
         this.serviceDiscovery.discoveryService();
+        PendingRpcHolder.startTimeoutThreadPool();
     }
 
     @SuppressWarnings("unchecked")
-    public static <T, P> T createService(Class<T> interfaceClass, String version, RpcLoadBalance loadBalance) {
+    public static <T, P> T getProxyInstance(Class<T> interfaceClass, String version, RpcLoadBalance loadBalance, long timeoutLength) {
         return (T) Proxy.newProxyInstance(
                 interfaceClass.getClassLoader(),
                 new Class<?>[]{interfaceClass},
-                new ObjectProxy<T, P>(interfaceClass, version, loadBalance)
+                new ObjectProxy<T, P>(interfaceClass, version, loadBalance, timeoutLength)
         );
     }
 
-    @SuppressWarnings("unchecked")
-    public static <T, P> T createService(Class<T> interfaceClass, String version) {
-        return (T) Proxy.newProxyInstance(
-                interfaceClass.getClassLoader(),
-                new Class<?>[]{interfaceClass},
-                new ObjectProxy<T, P>(interfaceClass, version)
-        );
-    }
-
-
-    public static <T, P> RpcService createAsyncService(Class<T> interfaceClass, String version) {
-        return new ObjectProxy<T, P>(interfaceClass, version);
+    public static <T, P> RpcService getAsyncProxyInstance(Class<T> interfaceClass, String version, RpcLoadBalance loadBalance, long timeoutLength) {
+        return new ObjectProxy<T, P>(interfaceClass, version, loadBalance, timeoutLength);
     }
 
     public static void submit(Runnable task) {
@@ -70,6 +62,7 @@ public class RpcClient implements ApplicationContextAware, DisposableBean {
         threadPoolExecutor.shutdown();
         serviceDiscovery.stop();
         ConnectionManager.getInstance().stop();
+        PendingRpcHolder.stop();
     }
 
     @Override
@@ -89,8 +82,9 @@ public class RpcClient implements ApplicationContextAware, DisposableBean {
                     if (rpcAutowired != null) {
                         String version = rpcAutowired.version();
                         RpcLoadBalance loadBalance = (RpcLoadBalance) rpcAutowired.loadBalanceStrategy().newInstance();
+                        long timeoutLength = rpcAutowired.timeOutLength();
                         field.setAccessible(true);
-                        field.set(bean, createService(field.getType(), version, loadBalance));
+                        field.set(bean, getProxyInstance(field.getType(), version, loadBalance, timeoutLength));
                     }
                 }
             } catch (Exception e) {
