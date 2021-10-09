@@ -6,7 +6,7 @@ package com.polyu.rpc.registry;
 public enum RegistryConfigEnum {
 
     ZK_REGISTRY_PATH("/registry/"),
-    ZK_NAME_SAPCE("bRPC"),
+    ZK_NAME_SPACE("bRPC"),
     ZK_SESSION_TIMEOUT(5000),
     ZK_CONNECTION_TIMEOUT(5000),
 

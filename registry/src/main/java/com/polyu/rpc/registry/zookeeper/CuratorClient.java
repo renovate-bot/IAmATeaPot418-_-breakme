@@ -29,13 +29,13 @@ public class CuratorClient {
     }
 
     public CuratorClient(String connectString, int timeout) {
-        this(connectString, RegistryConfigEnum.ZK_NAME_SAPCE.getValue(), timeout, timeout);
+        this(connectString, RegistryConfigEnum.ZK_NAME_SPACE.getValue(), timeout, timeout);
     }
 
     public CuratorClient(String connectString) {
         this(
                 connectString,
-                RegistryConfigEnum.ZK_NAME_SAPCE.getValue(),
+                RegistryConfigEnum.ZK_NAME_SPACE.getValue(),
                 RegistryConfigEnum.ZK_SESSION_TIMEOUT.getTimeOutLength(),
                 RegistryConfigEnum.ZK_CONNECTION_TIMEOUT.getTimeOutLength()
         );
