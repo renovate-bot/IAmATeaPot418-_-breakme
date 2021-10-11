@@ -23,7 +23,7 @@ public class PendingRpcHolder {
         scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                for(String requestId : pendingRPC.keySet()) {
+                for (String requestId : pendingRPC.keySet()) {
                     RpcFuture rpcFuture = pendingRPC.get(requestId);
                     if (rpcFuture == null || !rpcFuture.isTimeout()) {
                         continue;

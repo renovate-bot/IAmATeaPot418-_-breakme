@@ -22,7 +22,7 @@ public class ProtocolsKeeper {
     @Data
     private static class RpcProtocolsContainer {
         private List<RpcProtocol> rpcProtocols = new CopyOnWriteArrayList<>();
-        private Map<RpcProtocol, Integer> index2Protocols = new HashMap<>();
+        private Map<RpcProtocol, Integer> protocol2Index = new HashMap<>();
     }
 
     /**
@@ -43,14 +43,14 @@ public class ProtocolsKeeper {
                     key2Protocols.put(serviceKey, rpcProtocolsContainer);
                 }
                 List<RpcProtocol> rpcProtocols = rpcProtocolsContainer.getRpcProtocols();
-                Map<RpcProtocol, Integer> index2Protocols = rpcProtocolsContainer.getIndex2Protocols();
+                Map<RpcProtocol, Integer> protocol2Index = rpcProtocolsContainer.getProtocol2Index();
 
-                Integer index = index2Protocols.get(rpcProtocol);
+                Integer index = protocol2Index.get(rpcProtocol);
                 // 如果已经存在 移除进行更新
                 if (Objects.nonNull(index)) {
                     rpcProtocols.remove(index.intValue());
                 }
-                index2Protocols.put(rpcProtocol, rpcProtocols.size());
+                protocol2Index.put(rpcProtocol, rpcProtocols.size());
                 rpcProtocols.add(rpcProtocol);
             } catch (Exception e) {
                 logger.error("addZkChild operation exception, serviceInfo: {}, exception: {}", serviceInfo, e.getMessage());
@@ -74,15 +74,15 @@ public class ProtocolsKeeper {
                 if (Objects.isNull(rpcProtocolsContainer)) {
                     continue;
                 }
-                Map<RpcProtocol, Integer> index2Protocols = rpcProtocolsContainer.getIndex2Protocols();
+                Map<RpcProtocol, Integer> protocol2Index = rpcProtocolsContainer.getProtocol2Index();
                 List<RpcProtocol> rpcProtocols = rpcProtocolsContainer.getRpcProtocols();
 
-                Integer index = index2Protocols.get(rpcProtocol);
+                Integer index = protocol2Index.get(rpcProtocol);
                 if (Objects.isNull(index)) {
                     continue;
                 }
                 rpcProtocols.remove(index.intValue());
-                index2Protocols.remove(rpcProtocol);
+                protocol2Index.remove(rpcProtocol);
             } catch (Exception e) {
                 logger.error("removeZkChild operation exception, serviceInfo: {}, exception: {}", serviceInfo, e.getMessage());
             }
