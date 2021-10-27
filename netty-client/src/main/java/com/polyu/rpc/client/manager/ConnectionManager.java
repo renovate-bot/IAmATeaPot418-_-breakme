@@ -3,8 +3,8 @@ package com.polyu.rpc.client.manager;
 import com.polyu.rpc.registry.observation.Observer;
 import com.polyu.rpc.registry.ServiceDiscovery;
 import com.polyu.rpc.route.ProtocolsKeeper;
-import com.polyu.rpc.protocol.RpcProtocol;
-import com.polyu.rpc.protocol.RpcServiceInfo;
+import com.polyu.rpc.info.RpcMetaData;
+import com.polyu.rpc.info.RpcServiceInfo;
 import com.polyu.rpc.util.ThreadPoolUtil;
 import com.polyu.rpc.client.netty.handler.RpcClientHandler;
 import com.polyu.rpc.client.netty.RpcClientInitializer;
@@ -34,8 +34,8 @@ public class ConnectionManager implements Observer {
      */
     private static ThreadPoolExecutor connectionThreadPool = ThreadPoolUtil.makeThreadPool(4, 8, 600L);
 
-    private Map<RpcProtocol, RpcClientHandler> connectedServerNodes = new ConcurrentHashMap<>();
-    private CopyOnWriteArraySet<RpcProtocol> rpcProtocolSet = new CopyOnWriteArraySet<>();
+    private Map<RpcMetaData, RpcClientHandler> connectedServerNodes = new ConcurrentHashMap<>();
+    private CopyOnWriteArraySet<RpcMetaData> rpcMetaDataSet = new CopyOnWriteArraySet<>();
 
     private volatile boolean isRunning = true;
     private ServiceDiscovery serviceDiscovery;
@@ -51,17 +51,17 @@ public class ConnectionManager implements Observer {
     /**
      * zk 根据事件进行更新
      * nacos 没有事件类型更新
-     * @param rpcProtocols rpc server信息
+     * @param rpcMetaDatas rpc server信息
      * @param type 更新类型（nacos更新类型以及zk全量更新为null）
      */
     @Override
-    public void update(List<RpcProtocol> rpcProtocols, PathChildrenCacheEvent.Type type) {
+    public void update(List<RpcMetaData> rpcMetaDatas, PathChildrenCacheEvent.Type type) {
         if (type == null) {
-            updateConnectedServer(rpcProtocols);
+            updateConnectedServer(rpcMetaDatas);
             return;
         }
-        RpcProtocol rpcProtocol = rpcProtocols.get(0);
-        updateConnectedServer(rpcProtocol, type);
+        RpcMetaData rpcMetaData = rpcMetaDatas.get(0);
+        updateConnectedServer(rpcMetaData, type);
     }
 
     /**
@@ -101,64 +101,64 @@ public class ConnectionManager implements Observer {
         return SingletonHolder.instance;
     }
 
-    private void updateConnectedServer(List<RpcProtocol> serviceList) {
+    private void updateConnectedServer(List<RpcMetaData> serviceList) {
         // Now using 2 collections to manage the service info and TCP connections because making the connection is async
         // Once service info is updated on ZK, will trigger this function
         // Actually client should only care about the service it is using
         if (serviceList != null && serviceList.size() > 0) {
             // Update local server nodes cache
-            HashSet<RpcProtocol> serviceSet = new HashSet<>(serviceList.size());
+            HashSet<RpcMetaData> serviceSet = new HashSet<>(serviceList.size());
             serviceSet.addAll(serviceList);
 
             // Add new server info
-            for (final RpcProtocol rpcProtocol : serviceSet) {
-                if (!rpcProtocolSet.contains(rpcProtocol)) {
-                    connectServerNode(rpcProtocol);
+            for (final RpcMetaData rpcMetaData : serviceSet) {
+                if (!rpcMetaDataSet.contains(rpcMetaData)) {
+                    connectServerNode(rpcMetaData);
                 }
             }
 
             // Close and remove invalid server nodes
-            for (RpcProtocol rpcProtocol : rpcProtocolSet) {
-                if (!serviceSet.contains(rpcProtocol)) {
-                    logger.info("Remove invalid service: {}.", rpcProtocol.toJson());
-                    removeAndCloseHandler(rpcProtocol);
+            for (RpcMetaData rpcMetaData : rpcMetaDataSet) {
+                if (!serviceSet.contains(rpcMetaData)) {
+                    logger.info("Remove invalid service: {}.", rpcMetaData.toJson());
+                    removeAndCloseHandler(rpcMetaData);
                 }
             }
         } else {
             // No available service
             logger.error("No available service!");
-            for (RpcProtocol rpcProtocol : rpcProtocolSet) {
-                removeAndCloseHandler(rpcProtocol);
+            for (RpcMetaData rpcMetaData : rpcMetaDataSet) {
+                removeAndCloseHandler(rpcMetaData);
             }
         }
     }
 
-    public void updateConnectedServer(RpcProtocol rpcProtocol, PathChildrenCacheEvent.Type type) {
-        if (rpcProtocol == null) {
+    public void updateConnectedServer(RpcMetaData rpcMetaData, PathChildrenCacheEvent.Type type) {
+        if (rpcMetaData == null) {
             return;
         }
-        if (type == PathChildrenCacheEvent.Type.CHILD_ADDED && !rpcProtocolSet.contains(rpcProtocol)) {
-            connectServerNode(rpcProtocol);
+        if (type == PathChildrenCacheEvent.Type.CHILD_ADDED && !rpcMetaDataSet.contains(rpcMetaData)) {
+            connectServerNode(rpcMetaData);
         } else if (type == PathChildrenCacheEvent.Type.CHILD_UPDATED) {
             // 对于主机ip & port没有改变的zk child更新，不进行重新连接。直接更新connectedServerNodes rpcProtocolSet ProtocolsKeeper
-            RpcProtocolChanger rpcProtocolChanger = serverHostUnChange(rpcProtocol);
-            if (rpcProtocolChanger.isNeedChange()) {
-                RpcProtocol oldProtocol = rpcProtocolChanger.getOldProtocol();
+            RpcMetaDataChanger rpcMetaDataChanger = serverHostUnChange(rpcMetaData);
+            if (rpcMetaDataChanger.isNeedChange()) {
+                RpcMetaData oldProtocol = rpcMetaDataChanger.getOldMetaData();
                 RpcClientHandler rpcClientHandler = connectedServerNodes.get(oldProtocol);
-                connectedServerNodes.put(rpcProtocol, rpcClientHandler);
+                connectedServerNodes.put(rpcMetaData, rpcClientHandler);
                 connectedServerNodes.remove(oldProtocol);
 
-                rpcProtocolSet.add(rpcProtocol);
-                rpcProtocolSet.remove(oldProtocol);
+                rpcMetaDataSet.add(rpcMetaData);
+                rpcMetaDataSet.remove(oldProtocol);
 
                 ProtocolsKeeper.removeZkChild(oldProtocol);
-                ProtocolsKeeper.addZkChild(rpcProtocol);
+                ProtocolsKeeper.addZkChild(rpcMetaData);
                 return;
             }
-            removeAndCloseHandler(rpcProtocol);
-            connectServerNode(rpcProtocol);
+            removeAndCloseHandler(rpcMetaData);
+            connectServerNode(rpcMetaData);
         } else if (type == PathChildrenCacheEvent.Type.CHILD_REMOVED) {
-            removeAndCloseHandler(rpcProtocol);
+            removeAndCloseHandler(rpcMetaData);
         } else {
             throw new IllegalArgumentException("Unknown type: " + type);
         }
@@ -169,46 +169,46 @@ public class ConnectionManager implements Observer {
      * 返回是否需要改变判断 & 需要替换的protocol
      * @return
      */
-    private RpcProtocolChanger serverHostUnChange(RpcProtocol rpcProtocol) {
-        for (RpcProtocol presentProtocol : rpcProtocolSet) {
+    private RpcMetaDataChanger serverHostUnChange(RpcMetaData rpcMetaData) {
+        for (RpcMetaData presentProtocol : rpcMetaDataSet) {
             String presentHost = presentProtocol.getHost();
             int presentPort = presentProtocol.getPort();
             if (presentHost != null && !"".equals(presentHost)) {
-                if (presentHost.equals(rpcProtocol.getHost()) && presentPort == rpcProtocol.getPort()) {
-                    return new RpcProtocolChanger(true, presentProtocol);
+                if (presentHost.equals(rpcMetaData.getHost()) && presentPort == rpcMetaData.getPort()) {
+                    return new RpcMetaDataChanger(true, presentProtocol);
                 }
             }
         }
-        return new RpcProtocolChanger(false);
+        return new RpcMetaDataChanger(false);
     }
 
     @Data
     @NoArgsConstructor
-    private static class RpcProtocolChanger {
+    private static class RpcMetaDataChanger {
         boolean needChange;
-        RpcProtocol oldProtocol;
+        RpcMetaData oldMetaData;
 
-        RpcProtocolChanger(boolean needChange, RpcProtocol oldProtocol) {
+        RpcMetaDataChanger(boolean needChange, RpcMetaData oldMetaData) {
             this.needChange = needChange;
-            this.oldProtocol = oldProtocol;
+            this.oldMetaData = oldMetaData;
         }
 
-        RpcProtocolChanger(boolean needChange) {
+        RpcMetaDataChanger(boolean needChange) {
             this.needChange = needChange;
         }
     }
 
-    public void connectServerNode(RpcProtocol rpcProtocol) {
-        if (rpcProtocol.getServiceInfoList() == null || rpcProtocol.getServiceInfoList().isEmpty()) {
-            logger.info("No service on node, host: {}, port: {}.", rpcProtocol.getHost(), rpcProtocol.getPort());
+    public void connectServerNode(RpcMetaData rpcMetaData) {
+        if (rpcMetaData.getServiceInfoList() == null || rpcMetaData.getServiceInfoList().isEmpty()) {
+            logger.info("No service on node, host: {}, port: {}.", rpcMetaData.getHost(), rpcMetaData.getPort());
             return;
         }
-        rpcProtocolSet.add(rpcProtocol);
-        logger.info("New service node, host: {}, port: {}.", rpcProtocol.getHost(), rpcProtocol.getPort());
-        for (RpcServiceInfo serviceProtocol : rpcProtocol.getServiceInfoList()) {
+        rpcMetaDataSet.add(rpcMetaData);
+        logger.info("New service node, host: {}, port: {}.", rpcMetaData.getHost(), rpcMetaData.getPort());
+        for (RpcServiceInfo serviceProtocol : rpcMetaData.getServiceInfoList()) {
             logger.info("New service info, name: {}, version: {}.", serviceProtocol.getServiceName(), serviceProtocol.getVersion());
         }
-        final InetSocketAddress remotePeer = new InetSocketAddress(rpcProtocol.getHost(), rpcProtocol.getPort());
+        final InetSocketAddress remotePeer = new InetSocketAddress(rpcMetaData.getHost(), rpcMetaData.getPort());
         connectionThreadPool.submit(new Runnable() {
             @Override
             public void run() {
@@ -224,15 +224,15 @@ public class ConnectionManager implements Observer {
                         if (channelFuture.isSuccess()) {
                             logger.info("Successfully connect to remote server, remote peer = {}.", remotePeer);
                             RpcClientHandler rpcClientHandler = channelFuture.channel().pipeline().get(RpcClientHandler.class);
-                            connectedServerNodes.put(rpcProtocol, rpcClientHandler);
-                            rpcClientHandler.setRpcProtocol(rpcProtocol);
+                            connectedServerNodes.put(rpcMetaData, rpcClientHandler);
+                            rpcClientHandler.setRpcMetaData(rpcMetaData);
                             rpcClientHandler.setIntentionalClose(false);
                             // 方便后续快速选择 在此记录
-                            ProtocolsKeeper.addZkChild(rpcProtocol);
+                            ProtocolsKeeper.addZkChild(rpcMetaData);
                             HandlerManager.signalAvailableHandler();
                         } else {
                             // 失败进行回收
-                            removeConnectRecord(rpcProtocol);
+                            removeConnectRecord(rpcMetaData);
                             logger.error("Can not connect to remote server, remote peer = {}.", remotePeer);
                         }
                     }
@@ -243,11 +243,11 @@ public class ConnectionManager implements Observer {
 
     /**
      * 关闭 & 移除 连接
-     * @param rpcProtocol peer server 信息
+     * @param rpcMetaData peer server 信息
      */
-    private void removeAndCloseHandler(RpcProtocol rpcProtocol) {
-        RpcClientHandler handler = connectedServerNodes.get(rpcProtocol);
-        removeConnectRecord(rpcProtocol);
+    private void removeAndCloseHandler(RpcMetaData rpcMetaData) {
+        RpcClientHandler handler = connectedServerNodes.get(rpcMetaData);
+        removeConnectRecord(rpcMetaData);
         if (handler != null) {
             handler.setIntentionalClose(true);
             handler.close();
@@ -256,20 +256,20 @@ public class ConnectionManager implements Observer {
 
     /**
      * 连接失败 移除连接记录
-     * @param rpcProtocol server information
+     * @param rpcMetaData server information
      */
-    public void removeConnectRecord(RpcProtocol rpcProtocol) {
-        rpcProtocolSet.remove(rpcProtocol);
-        connectedServerNodes.remove(rpcProtocol);
-        ProtocolsKeeper.removeZkChild(rpcProtocol);
-        logger.info("Remove one connection, host: {}, port: {}.", rpcProtocol.getHost(), rpcProtocol.getPort());
+    public void removeConnectRecord(RpcMetaData rpcMetaData) {
+        rpcMetaDataSet.remove(rpcMetaData);
+        connectedServerNodes.remove(rpcMetaData);
+        ProtocolsKeeper.removeZkChild(rpcMetaData);
+        logger.info("Remove one connection, host: {}, port: {}.", rpcMetaData.getHost(), rpcMetaData.getPort());
     }
 
     /**
      * 获取protocol -> handler map
      * @return protocol2handler
      */
-    Map<RpcProtocol, RpcClientHandler> getConnectedServerNodes() {
+    Map<RpcMetaData, RpcClientHandler> getConnectedServerNodes() {
         return connectedServerNodes;
     }
 
@@ -291,8 +291,8 @@ public class ConnectionManager implements Observer {
 
     public void stop() {
         isRunning = false;
-        for (RpcProtocol rpcProtocol : rpcProtocolSet) {
-            removeAndCloseHandler(rpcProtocol);
+        for (RpcMetaData rpcMetaData : rpcMetaDataSet) {
+            removeAndCloseHandler(rpcMetaData);
         }
         HandlerManager.signalAvailableHandler();
         connectionThreadPool.shutdown();

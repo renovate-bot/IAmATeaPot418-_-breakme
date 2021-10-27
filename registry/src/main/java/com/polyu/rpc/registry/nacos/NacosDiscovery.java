@@ -8,7 +8,7 @@ import com.alibaba.nacos.api.naming.listener.NamingEvent;
 import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.polyu.rpc.registry.RegistryConfigEnum;
 import com.polyu.rpc.registry.observation.Observer;
-import com.polyu.rpc.protocol.RpcProtocol;
+import com.polyu.rpc.info.RpcMetaData;
 import com.polyu.rpc.registry.ServiceDiscovery;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.slf4j.Logger;
@@ -60,10 +60,10 @@ public class NacosDiscovery implements ServiceDiscovery {
         try {
             String serviceName = RegistryConfigEnum.NACOS_REGISTRY_PATH.getValue().concat(this.targetApplicationName);
             List<Instance> instances = namingService.selectInstances(serviceName, true);
-            List<RpcProtocol> rpcProtocols = instances2RpcProtocols(instances);
+            List<RpcMetaData> rpcMetaData = instances2RpcProtocols(instances);
             // 观察者模式 进行通知
-            notifyObserver(rpcProtocols, null);
-            logger.info("Nacos service discovery first pull. data: {}.", rpcProtocols);
+            notifyObserver(rpcMetaData, null);
+            logger.info("Nacos service discovery first pull. data: {}.", rpcMetaData);
 
             namingService.subscribe(serviceName, new EventListener() {
                 @Override
@@ -72,10 +72,10 @@ public class NacosDiscovery implements ServiceDiscovery {
                         try {
                             NamingEvent namingEvent = (NamingEvent) event;
                             List<Instance> instances = namingEvent.getInstances();
-                            List<RpcProtocol> rpcProtocols = instances2RpcProtocols(instances);
-                            logger.info("service changed, new server info: {}.", rpcProtocols);
+                            List<RpcMetaData> rpcMetaData = instances2RpcProtocols(instances);
+                            logger.info("service changed, new server info: {}.", rpcMetaData);
                             // 观察者模式 进行通知
-                            notifyObserver(rpcProtocols, null);
+                            notifyObserver(rpcMetaData, null);
                         } catch (Exception e) {
                             logger.error("service update failed. exception: {}.", e.getMessage());
                         }
@@ -104,16 +104,16 @@ public class NacosDiscovery implements ServiceDiscovery {
      * @param instances nacos 服务实例
      * @return
      */
-    private List<RpcProtocol> instances2RpcProtocols(List<Instance> instances) {
-        List<RpcProtocol> res = new ArrayList<>(instances.size());
+    private List<RpcMetaData> instances2RpcProtocols(List<Instance> instances) {
+        List<RpcMetaData> res = new ArrayList<>(instances.size());
         for (Instance instance : instances) {
             if (!instance.isHealthy()) {
                 continue;
             }
             Map<String, String> metadata = instance.getMetadata();
             String rpcProtocolJson = metadata.get("rpcProtocol");
-            RpcProtocol rpcProtocol = RpcProtocol.fromJson(rpcProtocolJson);
-            res.add(rpcProtocol);
+            RpcMetaData rpcMetaData = RpcMetaData.fromJson(rpcProtocolJson);
+            res.add(rpcMetaData);
         }
         return res;
     }
@@ -124,7 +124,7 @@ public class NacosDiscovery implements ServiceDiscovery {
     }
 
     @Override
-    public void notifyObserver(List<RpcProtocol> protocols, PathChildrenCacheEvent.Type type) {
+    public void notifyObserver(List<RpcMetaData> protocols, PathChildrenCacheEvent.Type type) {
         for (Observer observer : observers) {
             observer.update(protocols, type);
         }

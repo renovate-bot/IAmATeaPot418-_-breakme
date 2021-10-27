@@ -1,7 +1,6 @@
 package com.polyu.rpc.route;
 
-import com.polyu.rpc.protocol.RpcProtocol;
-import com.polyu.rpc.route.impl.RpcLoadBalanceRoundRobin;
+import com.polyu.rpc.info.RpcMetaData;
 
 public interface RpcLoadBalance {
 
@@ -10,6 +9,6 @@ public interface RpcLoadBalance {
      * @param serviceKey serviceName & version
      * @return RpcProtocol
      */
-    RpcProtocol route(String serviceKey) throws Exception;
+    RpcMetaData route(String serviceKey) throws Exception;
 
 }

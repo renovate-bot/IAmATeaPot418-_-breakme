@@ -1,7 +1,7 @@
 package com.polyu.rpc.route;
 
-import com.polyu.rpc.protocol.RpcProtocol;
-import com.polyu.rpc.protocol.RpcServiceInfo;
+import com.polyu.rpc.info.RpcMetaData;
+import com.polyu.rpc.info.RpcServiceInfo;
 import com.polyu.rpc.util.ServiceUtil;
 import lombok.Data;
 import org.slf4j.Logger;
@@ -21,19 +21,19 @@ public class ProtocolsKeeper {
 
     @Data
     private static class RpcProtocolsContainer {
-        private List<RpcProtocol> rpcProtocols = new CopyOnWriteArrayList<>();
-        private Map<RpcProtocol, Integer> protocol2Index = new HashMap<>();
+        private List<RpcMetaData> rpcMetaData = new CopyOnWriteArrayList<>();
+        private Map<RpcMetaData, Integer> protocol2Index = new HashMap<>();
     }
 
     /**
      * zk发生加入新的RpcProtocol 时更新key2Protocols
-     * @param rpcProtocol 注册信息
+     * @param rpcMetaData 注册信息
      */
-    public synchronized static void addZkChild(RpcProtocol rpcProtocol) {
-        if (Objects.isNull(rpcProtocol)) {
+    public synchronized static void addZkChild(RpcMetaData rpcMetaData) {
+        if (Objects.isNull(rpcMetaData)) {
             return;
         }
-        List<RpcServiceInfo> serviceInfos = rpcProtocol.getServiceInfoList();
+        List<RpcServiceInfo> serviceInfos = rpcMetaData.getServiceInfoList();
         for (RpcServiceInfo serviceInfo : serviceInfos) {
             try {
                 String serviceKey = ServiceUtil.makeServiceKey(serviceInfo.getServiceName(), serviceInfo.getVersion());
@@ -42,16 +42,16 @@ public class ProtocolsKeeper {
                     rpcProtocolsContainer = new RpcProtocolsContainer();
                     key2Protocols.put(serviceKey, rpcProtocolsContainer);
                 }
-                List<RpcProtocol> rpcProtocols = rpcProtocolsContainer.getRpcProtocols();
-                Map<RpcProtocol, Integer> protocol2Index = rpcProtocolsContainer.getProtocol2Index();
+                List<RpcMetaData> rpcMetaDatas = rpcProtocolsContainer.getRpcMetaData();
+                Map<RpcMetaData, Integer> protocol2Index = rpcProtocolsContainer.getProtocol2Index();
 
-                Integer index = protocol2Index.get(rpcProtocol);
+                Integer index = protocol2Index.get(rpcMetaData);
                 // 如果已经存在 移除进行更新
                 if (Objects.nonNull(index)) {
-                    rpcProtocols.remove(index.intValue());
+                    rpcMetaDatas.remove(index.intValue());
                 }
-                protocol2Index.put(rpcProtocol, rpcProtocols.size());
-                rpcProtocols.add(rpcProtocol);
+                protocol2Index.put(rpcMetaData, rpcMetaDatas.size());
+                rpcMetaDatas.add(rpcMetaData);
             } catch (Exception e) {
                 logger.error("addZkChild operation exception, serviceInfo: {}, exception: {}", serviceInfo, e.getMessage());
             }
@@ -60,13 +60,13 @@ public class ProtocolsKeeper {
 
     /**
      * 删除rpcProtocol 更新key2Protocols
-     * @param rpcProtocol
+     * @param rpcMetaData
      */
-    public synchronized static void removeZkChild(RpcProtocol rpcProtocol) {
-        if (Objects.isNull(rpcProtocol)) {
+    public synchronized static void removeZkChild(RpcMetaData rpcMetaData) {
+        if (Objects.isNull(rpcMetaData)) {
             return;
         }
-        List<RpcServiceInfo> serviceInfos = rpcProtocol.getServiceInfoList();
+        List<RpcServiceInfo> serviceInfos = rpcMetaData.getServiceInfoList();
         for (RpcServiceInfo serviceInfo : serviceInfos) {
             try {
                 String serviceKey = ServiceUtil.makeServiceKey(serviceInfo.getServiceName(), serviceInfo.getVersion());
@@ -74,27 +74,27 @@ public class ProtocolsKeeper {
                 if (Objects.isNull(rpcProtocolsContainer)) {
                     continue;
                 }
-                Map<RpcProtocol, Integer> protocol2Index = rpcProtocolsContainer.getProtocol2Index();
-                List<RpcProtocol> rpcProtocols = rpcProtocolsContainer.getRpcProtocols();
+                Map<RpcMetaData, Integer> protocol2Index = rpcProtocolsContainer.getProtocol2Index();
+                List<RpcMetaData> rpcMetaDatas = rpcProtocolsContainer.getRpcMetaData();
 
-                Integer index = protocol2Index.get(rpcProtocol);
+                Integer index = protocol2Index.get(rpcMetaData);
                 if (Objects.isNull(index)) {
                     continue;
                 }
-                rpcProtocols.remove(index.intValue());
-                protocol2Index.remove(rpcProtocol);
+                rpcMetaDatas.remove(index.intValue());
+                protocol2Index.remove(rpcMetaData);
             } catch (Exception e) {
                 logger.error("removeZkChild operation exception, serviceInfo: {}, exception: {}", serviceInfo, e.getMessage());
             }
         }
     }
 
-    public static List<RpcProtocol> getProtocolsFromServiceKey(String serviceKey) {
+    public static List<RpcMetaData> getProtocolsFromServiceKey(String serviceKey) {
         RpcProtocolsContainer rpcProtocolsContainer = key2Protocols.get(serviceKey);
         if (Objects.isNull(rpcProtocolsContainer)) {
             logger.warn("there is no service for serviceKey: {}.", serviceKey);
             return null;
         }
-        return rpcProtocolsContainer.getRpcProtocols();
+        return rpcProtocolsContainer.getRpcMetaData();
     }
 }

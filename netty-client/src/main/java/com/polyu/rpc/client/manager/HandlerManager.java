@@ -1,7 +1,7 @@
 package com.polyu.rpc.client.manager;
 
 import com.polyu.rpc.client.netty.handler.RpcClientHandler;
-import com.polyu.rpc.protocol.RpcProtocol;
+import com.polyu.rpc.info.RpcMetaData;
 import com.polyu.rpc.route.RpcLoadBalance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +29,7 @@ public class HandlerManager {
      * @throws Exception Client close
      */
     public static RpcClientHandler chooseHandler(String serviceKey, RpcLoadBalance loadBalance) throws Exception {
-        Map<RpcProtocol, RpcClientHandler> connectedServerNodes = ConnectionManager.getInstance().getConnectedServerNodes();
+        Map<RpcMetaData, RpcClientHandler> connectedServerNodes = ConnectionManager.getInstance().getConnectedServerNodes();
         while (connectedServerNodes.values().size() <= 0) {
             if (!ConnectionManager.getInstance().isRunning()) {
                 throw new RuntimeException("Client is closed.");
@@ -40,8 +40,8 @@ public class HandlerManager {
                 logger.error("Waiting for available service is interrupted!", e);
             }
         }
-        RpcProtocol rpcProtocol = loadBalance.route(serviceKey);
-        RpcClientHandler handler = connectedServerNodes.get(rpcProtocol);
+        RpcMetaData rpcMetaData = loadBalance.route(serviceKey);
+        RpcClientHandler handler = connectedServerNodes.get(rpcMetaData);
         if (handler == null) {
             throw new Exception("Can not get available connection.");
         }

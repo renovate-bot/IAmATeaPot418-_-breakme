@@ -1,7 +1,7 @@
 package com.polyu.rpc.registry.zookeeper;
 
-import com.polyu.rpc.protocol.RpcProtocol;
-import com.polyu.rpc.protocol.RpcServiceInfo;
+import com.polyu.rpc.info.RpcMetaData;
+import com.polyu.rpc.info.RpcServiceInfo;
 import com.polyu.rpc.registry.RegistryConfigEnum;
 import com.polyu.rpc.registry.ServiceRegistry;
 import com.polyu.rpc.util.ServiceUtil;
@@ -47,13 +47,13 @@ public class ZKRegistry implements ServiceRegistry {
     public void registerService(String host, int port, Map<String, Object> serviceKey2BeanMap) {
         List<RpcServiceInfo> serviceInfoList = ServiceUtil.beanMap2RpcServiceInfos(serviceKey2BeanMap);
         try {
-            RpcProtocol rpcProtocol = new RpcProtocol();
-            rpcProtocol.setHost(host);
-            rpcProtocol.setPort(port);
-            rpcProtocol.setServiceInfoList(serviceInfoList);
-            String serviceData = rpcProtocol.toJson();
+            RpcMetaData rpcMetaData = new RpcMetaData();
+            rpcMetaData.setHost(host);
+            rpcMetaData.setPort(port);
+            rpcMetaData.setServiceInfoList(serviceInfoList);
+            String serviceData = rpcMetaData.toJson();
             byte[] bytes = serviceData.getBytes();
-            String path = RegistryConfigEnum.ZK_REGISTRY_PATH.getValue().concat(this.applicationName) + "/data-" + rpcProtocol.hashCode();
+            String path = RegistryConfigEnum.ZK_REGISTRY_PATH.getValue().concat(this.applicationName) + "/data-" + rpcMetaData.hashCode();
             path = this.zkClient.createPathData(path, bytes);
             this.zkPath = path;
             logger.info("Register {} new service, host: {}, port: {}.", serviceInfoList.size(), host, port);
