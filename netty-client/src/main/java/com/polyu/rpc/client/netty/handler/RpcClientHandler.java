@@ -1,6 +1,6 @@
 package com.polyu.rpc.client.netty.handler;
 
-import com.polyu.rpc.client.manager.ConnectionManager;
+import com.polyu.rpc.client.connect.Connector;
 import com.polyu.rpc.client.result.PendingRpcHolder;
 import com.polyu.rpc.codec.RpcRequest;
 import com.polyu.rpc.codec.RpcResponse;
@@ -84,11 +84,11 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
             return;
         }
         logger.info("Connection to server lose, active reconnect mechanism.");
-        ConnectionManager connectionManager = ConnectionManager.getInstance();
+        Connector connector = Connector.getInstance();
         try {
-            connectionManager.connectServerNode(rpcMetaData);
+            connector.connectServerNode(rpcMetaData);
         } catch (Exception e) {
-            connectionManager.removeConnectRecord(rpcMetaData);
+            connector.removeConnectRecord(rpcMetaData);
         }
     }
 

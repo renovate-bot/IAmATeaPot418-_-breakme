@@ -1,4 +1,4 @@
-package com.polyu.rpc.client.manager;
+package com.polyu.rpc.client.connect;
 
 import com.polyu.rpc.client.netty.handler.RpcClientHandler;
 import com.polyu.rpc.info.RpcMetaData;
@@ -29,9 +29,9 @@ public class HandlerManager {
      * @throws Exception Client close
      */
     public static RpcClientHandler chooseHandler(String serviceKey, RpcLoadBalance loadBalance) throws Exception {
-        Map<RpcMetaData, RpcClientHandler> connectedServerNodes = ConnectionManager.getInstance().getConnectedServerNodes();
+        Map<RpcMetaData, RpcClientHandler> connectedServerNodes = Connector.getInstance().getConnectedServerNodes();
         while (connectedServerNodes.values().size() <= 0) {
-            if (!ConnectionManager.getInstance().isRunning()) {
+            if (!ConnectionUpdater.getInstance().isRunning()) {
                 throw new RuntimeException("Client is closed.");
             }
             try {

@@ -14,8 +14,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * 用于route的快速选择
  */
-public class ProtocolsKeeper {
-    private static final Logger logger = LoggerFactory.getLogger(ProtocolsKeeper.class);
+public class MetaDataKeeper {
+    private static final Logger logger = LoggerFactory.getLogger(MetaDataKeeper.class);
 
     private static Map<String, RpcMetaDataContainer> key2MetaDatas = new ConcurrentHashMap<>();
 
