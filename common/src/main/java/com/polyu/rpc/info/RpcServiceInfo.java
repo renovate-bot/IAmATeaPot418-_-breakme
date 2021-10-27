@@ -1,19 +1,21 @@
-package com.polyu.rpc.protocol;
+package com.polyu.rpc.info;
 
 import com.polyu.rpc.util.JsonUtil;
+import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
 import java.util.Objects;
 
-public class RpcServiceInfo implements Serializable {
-    // interface name
+@NoArgsConstructor
+public class RpcServiceInfo {
+    /**
+     * 服务名
+     */
     private String serviceName;
-    // service version
+
+    /**
+     * 接口版本
+     */
     private String version;
-
-    public RpcServiceInfo() {
-
-    }
 
     public RpcServiceInfo(String serviceName, String version) {
         this.serviceName = serviceName;
@@ -51,8 +53,7 @@ public class RpcServiceInfo implements Serializable {
     }
 
     public String toJson() {
-        String json = JsonUtil.objectToJson(this);
-        return json;
+        return JsonUtil.objectToJson(this);
     }
 
     @Override

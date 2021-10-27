@@ -1,6 +1,6 @@
 package com.polyu.rpc.util;
 
-import com.polyu.rpc.protocol.RpcServiceInfo;
+import com.polyu.rpc.info.RpcServiceInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

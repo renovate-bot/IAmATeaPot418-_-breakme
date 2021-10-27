@@ -3,8 +3,8 @@ package com.polyu.rpc.registry.nacos;
 import com.alibaba.nacos.api.naming.NamingFactory;
 import com.alibaba.nacos.api.naming.NamingService;
 import com.alibaba.nacos.api.naming.pojo.Instance;
-import com.polyu.rpc.protocol.RpcProtocol;
-import com.polyu.rpc.protocol.RpcServiceInfo;
+import com.polyu.rpc.info.RpcMetaData;
+import com.polyu.rpc.info.RpcServiceInfo;
 import com.polyu.rpc.registry.RegistryConfigEnum;
 import com.polyu.rpc.registry.ServiceRegistry;
 import com.polyu.rpc.util.ServiceUtil;
@@ -55,11 +55,11 @@ public class NacosRegistry implements ServiceRegistry {
         this.ip = host;
         this.port = port;
         try {
-            RpcProtocol rpcProtocol = new RpcProtocol();
-            rpcProtocol.setHost(host);
-            rpcProtocol.setPort(port);
-            rpcProtocol.setServiceInfoList(serviceInfoList);
-            String serviceData = rpcProtocol.toJson();
+            RpcMetaData rpcMetaData = new RpcMetaData();
+            rpcMetaData.setHost(host);
+            rpcMetaData.setPort(port);
+            rpcMetaData.setServiceInfoList(serviceInfoList);
+            String serviceData = rpcMetaData.toJson();
             this.nacosNameSpace = RegistryConfigEnum.NACOS_REGISTRY_PATH.getValue().concat(applicationName);
             Instance serviceInstance = new Instance();
             serviceInstance.setIp(host);

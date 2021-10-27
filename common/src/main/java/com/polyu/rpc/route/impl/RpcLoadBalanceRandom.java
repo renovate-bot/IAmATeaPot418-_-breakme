@@ -1,6 +1,6 @@
 package com.polyu.rpc.route.impl;
 
-import com.polyu.rpc.protocol.RpcProtocol;
+import com.polyu.rpc.info.RpcMetaData;
 import com.polyu.rpc.route.ProtocolsKeeper;
 import com.polyu.rpc.route.RpcLoadBalance;
 import org.slf4j.Logger;
@@ -21,15 +21,15 @@ public class RpcLoadBalanceRandom implements RpcLoadBalance {
         this.random = new Random();
     }
 
-    private RpcProtocol doRoute(List<RpcProtocol> addressList) {
+    private RpcMetaData doRoute(List<RpcMetaData> addressList) {
         int index = random.nextInt(addressList.size());
         return addressList.get(index);
     }
 
     @Override
-    public RpcProtocol route(String serviceKey) throws Exception {
+    public RpcMetaData route(String serviceKey) throws Exception {
         logger.debug("RpcLoadBalanceRandom is routing for {}.", serviceKey);
-        List<RpcProtocol> addressList = ProtocolsKeeper.getProtocolsFromServiceKey(serviceKey);
+        List<RpcMetaData> addressList = ProtocolsKeeper.getProtocolsFromServiceKey(serviceKey);
         if (addressList != null && addressList.size() > 0) {
             return doRoute(addressList);
         } else {

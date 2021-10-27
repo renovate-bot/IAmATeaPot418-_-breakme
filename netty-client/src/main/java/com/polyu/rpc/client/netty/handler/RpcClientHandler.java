@@ -4,7 +4,7 @@ import com.polyu.rpc.client.manager.ConnectionManager;
 import com.polyu.rpc.client.result.PendingRpcHolder;
 import com.polyu.rpc.codec.RpcRequest;
 import com.polyu.rpc.codec.RpcResponse;
-import com.polyu.rpc.protocol.RpcProtocol;
+import com.polyu.rpc.info.RpcMetaData;
 import com.polyu.rpc.client.result.future.RpcFuture;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
@@ -16,7 +16,7 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
     private static final Logger logger = LoggerFactory.getLogger(RpcClientHandler.class);
 
     private volatile Channel channel;
-    private RpcProtocol rpcProtocol;
+    private RpcMetaData rpcMetaData;
 
     private volatile boolean intentionalClose;
 
@@ -67,8 +67,8 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
         return rpcFuture;
     }
 
-    public void setRpcProtocol(RpcProtocol rpcProtocol) {
-        this.rpcProtocol = rpcProtocol;
+    public void setRpcMetaData(RpcMetaData rpcMetaData) {
+        this.rpcMetaData = rpcMetaData;
     }
 
     /**
@@ -86,9 +86,9 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
         logger.info("Connection to server lose, active reconnect mechanism.");
         ConnectionManager connectionManager = ConnectionManager.getInstance();
         try {
-            connectionManager.connectServerNode(rpcProtocol);
+            connectionManager.connectServerNode(rpcMetaData);
         } catch (Exception e) {
-            connectionManager.removeConnectRecord(rpcProtocol);
+            connectionManager.removeConnectRecord(rpcMetaData);
         }
     }
 

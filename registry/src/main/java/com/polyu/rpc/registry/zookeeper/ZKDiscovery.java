@@ -2,7 +2,7 @@ package com.polyu.rpc.registry.zookeeper;
 
 import com.polyu.rpc.registry.RegistryConfigEnum;
 import com.polyu.rpc.registry.observation.Observer;
-import com.polyu.rpc.protocol.RpcProtocol;
+import com.polyu.rpc.info.RpcMetaData;
 import com.polyu.rpc.registry.ServiceDiscovery;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.ChildData;
@@ -77,13 +77,13 @@ public class ZKDiscovery implements ServiceDiscovery {
     private void getServiceAndUpdateServer() {
         try {
             List<String> nodeList = curatorClient.getChildren(RegistryConfigEnum.ZK_REGISTRY_PATH.getValue().concat(this.targetApplicationName));
-            List<RpcProtocol> dataList = new ArrayList<>();
+            List<RpcMetaData> dataList = new ArrayList<>();
             for (String node : nodeList) {
                 logger.debug("Service node: {}.", node);
                 byte[] bytes = curatorClient.getData(RegistryConfigEnum.ZK_REGISTRY_PATH.getValue().concat(this.targetApplicationName) + "/" + node);
                 String json = new String(bytes);
-                RpcProtocol rpcProtocol = RpcProtocol.fromJson(json);
-                dataList.add(rpcProtocol);
+                RpcMetaData rpcMetaData = RpcMetaData.fromJson(json);
+                dataList.add(rpcMetaData);
             }
             logger.debug("Service node data: {}.", dataList);
             updateConnectedServer(dataList);
@@ -96,17 +96,17 @@ public class ZKDiscovery implements ServiceDiscovery {
         String path = childData.getPath();
         String data = new String(childData.getData(), StandardCharsets.UTF_8);
         logger.info("Child data is updated, path:{}, type:{}, data:{}.", path, type, data);
-        RpcProtocol rpcProtocol =  RpcProtocol.fromJson(data);
-        updateConnectedServer(rpcProtocol, type);
+        RpcMetaData rpcMetaData =  RpcMetaData.fromJson(data);
+        updateConnectedServer(rpcMetaData, type);
     }
 
-    private void updateConnectedServer(List<RpcProtocol> dataList) {
+    private void updateConnectedServer(List<RpcMetaData> dataList) {
         notifyObserver(dataList, null);
     }
 
 
-    private void updateConnectedServer(RpcProtocol rpcProtocol, PathChildrenCacheEvent.Type type) {
-        notifyObserver(Collections.singletonList(rpcProtocol), type);
+    private void updateConnectedServer(RpcMetaData rpcMetaData, PathChildrenCacheEvent.Type type) {
+        notifyObserver(Collections.singletonList(rpcMetaData), type);
     }
 
     @Override
@@ -125,12 +125,12 @@ public class ZKDiscovery implements ServiceDiscovery {
 
     /**
      * 事件通知
-     * @param rpcProtocols
+     * @param rpcMetaData
      */
     @Override
-    public void notifyObserver(List<RpcProtocol> rpcProtocols, PathChildrenCacheEvent.Type type) {
+    public void notifyObserver(List<RpcMetaData> rpcMetaData, PathChildrenCacheEvent.Type type) {
         for (Observer observer : observers) {
-            observer.update(rpcProtocols, type);
+            observer.update(rpcMetaData, type);
         }
     }
 }
