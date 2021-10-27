@@ -1,9 +1,8 @@
 package com.polyu.rpc.client;
 
 import com.polyu.rpc.annotation.BRpcConsumer;
-import com.polyu.rpc.client.manager.ConnectionManager;
-import com.polyu.rpc.client.proxy.ObjectProxy;
-import com.polyu.rpc.client.proxy.RpcService;
+import com.polyu.rpc.client.connect.ConnectionUpdater;
+import com.polyu.rpc.client.proxy.InvokeProxy;
 import com.polyu.rpc.client.result.PendingRpcHolder;
 import com.polyu.rpc.registry.ServiceDiscovery;
 import com.polyu.rpc.route.RpcLoadBalance;
@@ -35,8 +34,8 @@ public class RpcClient implements ApplicationContextAware, DisposableBean {
      * @param serviceDiscovery 注册中心选型 nacos / zk
      */
     public RpcClient(ServiceDiscovery serviceDiscovery) {
-        ConnectionManager connectionManager = ConnectionManager.getAndInitInstance(serviceDiscovery);
-        this.serviceDiscovery = connectionManager.getServiceDiscovery();
+        ConnectionUpdater connectionUpdater = ConnectionUpdater.getAndInitInstance(serviceDiscovery);
+        this.serviceDiscovery = connectionUpdater.getServiceDiscovery();
         this.serviceDiscovery.discoveryService();
         PendingRpcHolder.startTimeoutThreadPool();
     }
@@ -46,12 +45,8 @@ public class RpcClient implements ApplicationContextAware, DisposableBean {
         return (T) Proxy.newProxyInstance(
                 interfaceClass.getClassLoader(),
                 new Class<?>[]{interfaceClass},
-                new ObjectProxy<T, P>(interfaceClass, version, loadBalance, timeoutLength)
+                new InvokeProxy(version, loadBalance, timeoutLength)
         );
-    }
-
-    public static <T, P> RpcService getAsyncProxyInstance(Class<T> interfaceClass, String version, RpcLoadBalance loadBalance, long timeoutLength) {
-        return new ObjectProxy<T, P>(interfaceClass, version, loadBalance, timeoutLength);
     }
 
     public static void submit(Runnable task) {
@@ -61,7 +56,7 @@ public class RpcClient implements ApplicationContextAware, DisposableBean {
     private void stop() {
         threadPoolExecutor.shutdown();
         serviceDiscovery.stop();
-        ConnectionManager.getInstance().stop();
+        ConnectionUpdater.getInstance().stop();
         PendingRpcHolder.stop();
     }
 

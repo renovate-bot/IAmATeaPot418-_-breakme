@@ -2,7 +2,7 @@ package com.polyu.rpc.route.impl;
 
 
 import com.polyu.rpc.info.RpcMetaData;
-import com.polyu.rpc.route.ProtocolsKeeper;
+import com.polyu.rpc.route.MetaDataKeeper;
 import com.polyu.rpc.route.RpcLoadBalance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +43,7 @@ public class RpcLoadBalanceRoundRobin implements RpcLoadBalance {
     @Override
     public RpcMetaData route(String serviceKey) throws Exception {
         logger.debug("RpcLoadBalanceRoundRobin is routing for {}.", serviceKey);
-        List<RpcMetaData> addressList = ProtocolsKeeper.getProtocolsFromServiceKey(serviceKey);
+        List<RpcMetaData> addressList = MetaDataKeeper.getProtocolsFromServiceKey(serviceKey);
         if (addressList != null && addressList.size() > 0) {
             return doRoute(addressList);
         } else {
