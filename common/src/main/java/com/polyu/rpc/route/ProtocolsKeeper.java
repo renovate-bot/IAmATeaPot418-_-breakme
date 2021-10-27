@@ -17,12 +17,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class ProtocolsKeeper {
     private static final Logger logger = LoggerFactory.getLogger(ProtocolsKeeper.class);
 
-    private static Map<String, RpcProtocolsContainer> key2Protocols = new ConcurrentHashMap<>();
+    private static Map<String, RpcMetaDataContainer> key2MetaDatas = new ConcurrentHashMap<>();
 
     @Data
-    private static class RpcProtocolsContainer {
+    private static class RpcMetaDataContainer {
         private List<RpcMetaData> rpcMetaData = new CopyOnWriteArrayList<>();
-        private Map<RpcMetaData, Integer> protocol2Index = new HashMap<>();
+        private Map<RpcMetaData, Integer> metaData2Index = new HashMap<>();
     }
 
     /**
@@ -37,13 +37,13 @@ public class ProtocolsKeeper {
         for (RpcServiceInfo serviceInfo : serviceInfos) {
             try {
                 String serviceKey = ServiceUtil.makeServiceKey(serviceInfo.getServiceName(), serviceInfo.getVersion());
-                RpcProtocolsContainer rpcProtocolsContainer = key2Protocols.get(serviceKey);
-                if (Objects.isNull(rpcProtocolsContainer)) {
-                    rpcProtocolsContainer = new RpcProtocolsContainer();
-                    key2Protocols.put(serviceKey, rpcProtocolsContainer);
+                RpcMetaDataContainer rpcMetaDataContainer = key2MetaDatas.get(serviceKey);
+                if (Objects.isNull(rpcMetaDataContainer)) {
+                    rpcMetaDataContainer = new RpcMetaDataContainer();
+                    key2MetaDatas.put(serviceKey, rpcMetaDataContainer);
                 }
-                List<RpcMetaData> rpcMetaDatas = rpcProtocolsContainer.getRpcMetaData();
-                Map<RpcMetaData, Integer> protocol2Index = rpcProtocolsContainer.getProtocol2Index();
+                List<RpcMetaData> rpcMetaDatas = rpcMetaDataContainer.getRpcMetaData();
+                Map<RpcMetaData, Integer> protocol2Index = rpcMetaDataContainer.getMetaData2Index();
 
                 Integer index = protocol2Index.get(rpcMetaData);
                 // 如果已经存在 移除进行更新
@@ -70,12 +70,12 @@ public class ProtocolsKeeper {
         for (RpcServiceInfo serviceInfo : serviceInfos) {
             try {
                 String serviceKey = ServiceUtil.makeServiceKey(serviceInfo.getServiceName(), serviceInfo.getVersion());
-                RpcProtocolsContainer rpcProtocolsContainer = key2Protocols.get(serviceKey);
-                if (Objects.isNull(rpcProtocolsContainer)) {
+                RpcMetaDataContainer rpcMetaDataContainer = key2MetaDatas.get(serviceKey);
+                if (Objects.isNull(rpcMetaDataContainer)) {
                     continue;
                 }
-                Map<RpcMetaData, Integer> protocol2Index = rpcProtocolsContainer.getProtocol2Index();
-                List<RpcMetaData> rpcMetaDatas = rpcProtocolsContainer.getRpcMetaData();
+                Map<RpcMetaData, Integer> protocol2Index = rpcMetaDataContainer.getMetaData2Index();
+                List<RpcMetaData> rpcMetaDatas = rpcMetaDataContainer.getRpcMetaData();
 
                 Integer index = protocol2Index.get(rpcMetaData);
                 if (Objects.isNull(index)) {
@@ -90,11 +90,11 @@ public class ProtocolsKeeper {
     }
 
     public static List<RpcMetaData> getProtocolsFromServiceKey(String serviceKey) {
-        RpcProtocolsContainer rpcProtocolsContainer = key2Protocols.get(serviceKey);
-        if (Objects.isNull(rpcProtocolsContainer)) {
+        RpcMetaDataContainer rpcMetaDataContainer = key2MetaDatas.get(serviceKey);
+        if (Objects.isNull(rpcMetaDataContainer)) {
             logger.warn("there is no service for serviceKey: {}.", serviceKey);
             return null;
         }
-        return rpcProtocolsContainer.getRpcMetaData();
+        return rpcMetaDataContainer.getRpcMetaData();
     }
 }
